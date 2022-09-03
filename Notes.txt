@@ -1,0 +1,20 @@
+AES：
+  AES.p4 写了很多宏定义，用来表示action、table以及它们的调用。功能基本上是加密，没有什么特别的验证需求。
+
+AquaFlow：
+  aqua_flow.p4
+  Tofino
+  看起来比较有价值，定义了很多register，用于处理连续多个数据包（或许有需要验证的属性，比如多个数据包如果出现中断或是什么行为，需要正确响应）
+  **启发**
+  应该关注转发行为，抽象掉具体细节
+
+beamer-p4
+  beamer.p4 看起来没做什么复杂的事情
+
+Blink
+  p4_code/
+  v1model
+  看起来是偏学术的程序，egress为空。定义了很多register，结构比较清晰，或许有参考价值
+
+burstradar
+  
