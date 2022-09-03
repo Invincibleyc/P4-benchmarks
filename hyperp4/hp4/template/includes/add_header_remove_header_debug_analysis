@@ -1,0 +1,29 @@
+Case:
+
+parser extracts nothing
+- nevertheless hp4 'extracted' 40B to ext_first
+- hp4 then copied ext_first to extracted.data
+
+extracted.data:
+00-39: packet pr
+40+: empty
+
+ingress adds 6B header
+extracted.data:
+00-05: new header
+06-45: packet pr
+
+-------
+
+FIX1: a_resize_pr_* actions need to take into account ext_first having the first 40B
+
+FIX2: set parse_ctrl.numbytes to 40 in parser
+
+So but now what about remove_header?
+- Need to revise resize_p4.p4t - prep ext[] for numbytes < 40 because we
+  will use ext[] *instead* of ext_first
+- Need to revise deparse_prep.p4t and invocations in hp4.p4t:
+  - handle numbytes < 40 by not copying back to ext_first but instead
+    copying back to ext[]
+- Need to revise parser to extract ext[] immediately when numbytes < 40
+  and not extract ext_first (this because final deparsing is based on the parser)

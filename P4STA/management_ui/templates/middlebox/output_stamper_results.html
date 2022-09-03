@@ -1,0 +1,336 @@
+<!--
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. -->
+{% load management_ui %}
+<head>
+	<script>
+	// check if any negative packteloss occurs and inser info message
+	$(document).ajaxComplete(function(){
+		var display_negativ_packetloss_info = false;
+		{% if dut_stats.total_packetloss < 0 or dut_stats.total_packetloss_stamped < 0 %}
+		display_negativ_packetloss_info = true;
+		{% endif %}
+		if(display_negativ_packetloss_info){
+			var hr = document.createElement("HR");
+			document.getElementById("negative_packet_loss_div").innerHTML="<p><i>A negative packetloss results of a DUT which communicates itself with the hosts, e.g. if it's a router which sends ARPs to every host.</i></p>";
+			document.getElementById("negative_packet_loss_div").appendChild(hr);
+		}
+	});
+	</script>
+</head>
+<body>
+
+<div class="row">
+	<div class="col-md-2"><u><b>Results from switch: </b></u></div>
+	<div class="col-md-2"><b>L4 modes: </b>{% if stamp_tcp == "checked" %}TCP {% endif %}{% if stamp_udp == "checked" %}UDP {% endif %}</div>
+	<div class="col-md-2"><p><b>File ID: </b>{{ filename }}</p></div>
+	<div class="col-md-2"><p><b>Created:</b> {{time}}</p></div>
+	<div class="col-md-2"></div>
+	<div class="col-md-2">
+		<a class="btn btn-primary" href="/downloadStamperResults/" role="button">Download</a>
+	</div>
+</div>
+<hr/>
+
+<p><u>Measured for L4-Packets and only for selected flows:</u></p>
+
+<p><b>Average Latency: </b>{{ average.0.0 }} <b>{{ average.1 }}</b></p>
+<p><b>Minimum Latency: </b>{{ min_delta.0.0 }} <b>{{ min_delta.1 }}</b> &emsp; <b>Maximum Latency: </b>{{ max_delta.0.0 }} <b>{{ max_delta.1 }}</b> &emsp; <b>Range: </b>{{range.0.0}} <b>{{range.1}}</b></p>
+
+<hr />
+<p><u>Measured for  <b>all</b> packets per DUT-port:</u></p>
+{% if dut_stats.dut_dual_port_mode %}
+	<p>Total packetloss between port {{dut_ports.0.real_port}} and {{dut_ports.1.real_port}}<b>: {{dut_ports.0.packetloss}} packets, {{dut_ports.0.packetloss_percent}}% (total: {{dut_ports.0.num_egress_packets}})</b></p>
+	<p>Total packetloss between port {{dut_ports.1.real_port}} and {{dut_ports.0.real_port}}<b>: {{dut_ports.1.packetloss}} packets, {{dut_ports.1.packetloss_percent}}% (total: {{dut_ports.1.num_egress_packets}})</b></p>
+{% endif %}
+<p>Total packetloss caused by DUT<b>: {{dut_stats.total_packetloss}} packets, {{dut_stats.total_packetloss_percent}}% (total: {{dut_stats.total_num_egress_packets}})</b></p>
+
+<hr />
+<p><u>Measured for  <b>stamped</b> packets per DUT-port:</u></p>
+{% if dut_stats.dut_dual_port_mode %}
+	<p>Total packetloss between port {{dut_ports.0.real_port}} and {{dut_ports.1.real_port}}<b>: {{dut_ports.0.packetloss_stamped}} packets, {{dut_ports.0.packetloss_stamped_percent}}% (total: {{dut_ports.0.num_egress_stamped_packets}})</b></p>
+	<p>Total packetloss between port {{dut_ports.1.real_port}} and {{dut_ports.0.real_port}}<b>: {{dut_ports.1.packetloss_stamped}} packets, {{dut_ports.1.packetloss_stamped_percent}}% (total: {{dut_ports.1.num_egress_stamped_packets}})</b></p>
+{% endif %}
+<p>Total packetloss caused by DUT<b>: {{dut_stats.total_packetloss_stamped}} packets, {{dut_stats.total_packetloss_stamped_percent}}% (total: {{dut_stats.total_num_egress_stamped_packets}})</b></p>
+
+<hr/>
+<div id="negative_packet_loss_div"></div>
+{% for dut in dut_ports %}
+{% if dut.use_port == "checked" %}
+<p>Leaving packets from Stamper Port <b>{{dut.real_port}}</b> are <b>{% if dut.stamp_outgoing != "checked" %}not {%endif%}stamped.</b></p>
+{% endif %}
+{% endfor %}
+
+<hr/>
+<div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="tableSwitch" onchange="changeTable(this);">
+  <label class="custom-control-label" for="tableSwitch">Timestamped packets only</label>
+</div>
+
+
+<span id="changeable_table">
+	<p><u>Measured for  <b>all</b> packets per port:</u></p>
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped table-highlight">
+				<thead>
+					<tr>
+						<th><center>Ingress-Pipeline</center></th>
+						<th><center>Egress-Pipeline</center></th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table table-bordered table-striped table-highlight">
+				<thead>
+					<tr>
+						<th>Ingoing Port</th>
+						<th>Byte Count</th>
+						<th>Packet Count</th>
+						<th>Average Packetsize</th>
+						<th></th>
+						<th>Byte Count</th>
+						<th>Packet Count</th>
+						<th>Average Packetsize</th>
+						<th>Outgoing Port</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for loadgen_grp in loadgen_groups %}
+					{% if loadgen_grp.use_group == "checked" %}
+					{% with loadgen_grp_indx=forloop.counter0 %}
+					{% for host in loadgen_grp.loadgens %}
+					{% if forloop.first %}
+					<tr>
+						<td>{{ host.real_port }}</td>
+						<td>{{ host.throughput_gbyte_ingress }}</td>
+						<td>{{ host.num_ingress_packets }}</td>
+						<td>{{ host.avg_packet_size_ingress }} B</td>
+						{% with cur_dut=dut_ports|getbyindex:loadgen_grp_indx %}
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle"><center><i class="fas fa-arrow-right"></i></center></td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.throughput_gbyte_egress }}</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.num_egress_packets }}</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.avg_packet_size_egress }} B</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.real_port }} </td>
+						{% endwith %}
+					</tr>
+					{% else %}
+					<tr>
+						<td>{{ host.real_port }}</td>
+						<td>{{ host.throughput_gbyte_ingress }}</td>
+						<td>{{ host.num_ingress_packets }}</td>
+						<td>{{ host.avg_packet_size_ingress }} B</td>
+					</tr>
+					{% endif %}
+					{% endfor %}
+					{% endwith %}
+					{% endif %}
+					{% endfor %}
+
+					<tr>{% for i in "012345678" %}<td style="background-color: gray;"></td>{% endfor %}</tr>
+					{% for loadgen_grp in loadgen_groups %}
+					{% if loadgen_grp.use_group == "checked" %}
+					{% with loadgen_grp_indx=forloop.counter0 %}
+					{% for host in loadgen_grp.loadgens %}
+					{% if forloop.first %}
+					<tr>
+						{% with cur_dut=dut_ports|getbyindex:loadgen_grp_indx %}
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.real_port }}</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.throughput_gbyte_ingress }}</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.num_ingress_packets }}</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.avg_packet_size_ingress }} B</td>
+						<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle"><center><i class="fas fa-arrow-right"></i></center></td>
+						<td>{{ host.throughput_gbyte_egress }}</td>
+						<td>{{ host.num_egress_packets }}</td>
+						<td>{{ host.avg_packet_size_egress }} B </td>
+						<td>{{ host.real_port }}</td>
+						{% endwith %}
+					</tr>
+					{% else %}
+					<tr>
+						<td>{{ host.throughput_gbyte_egress }}</td>
+						<td>{{ host.num_egress_packets }}</td>
+						<td>{{ host.avg_packet_size_egress }} B</td>
+						<td>{{ host.real_port }}</td>
+					</tr>
+					{% endif %}
+					{% endfor %}
+
+					{% endwith %}
+					{% endif %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</span>
+
+
+	<span id="changeable_table_stamped" hidden>
+		<p><u>Measured for  <b>stamped</b> packets per port:</u></p>
+			<div class="table-responsive">
+				<table class="table table-bordered table-striped table-highlight">
+					<thead>
+						<tr>
+							<th><center>Ingress-Pipeline</center></th>
+							<th><center>Egress-Pipeline</center></th>
+						</tr>
+					</thead>
+				</table>
+				<table class="table table-bordered table-striped table-highlight">
+					<thead>
+						<tr>
+							<th>Ingoing Port</th>
+							<th>Byte Count</th>
+							<th>Packet Count</th>
+							<th>Average Packetsize</th>
+							<th></th>
+							<th>Byte Count</th>
+							<th>Packet Count</th>
+							<th>Average Packetsize</th>
+							<th>Outgoing Port</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for loadgen_grp in loadgen_groups %}
+						{% if loadgen_grp.use_group == "checked" %}
+						{% with loadgen_grp_indx=forloop.counter0 %}
+						{% for host in loadgen_grp.loadgens %}
+						{% if forloop.first %}
+						<tr>
+							<td>{{ host.real_port }}</td>
+							<td>{{ host.throughput_gbyte_ingress_stamped }}</td>
+							<td>{{ host.num_ingress_stamped_packets }}</td>
+							<td>{{ host.avg_packet_size_ingress_stamped }} B</td>
+							{% with cur_dut=dut_ports|getbyindex:loadgen_grp_indx %}
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle"><center><i class="fas fa-arrow-right"></i></center></td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.throughput_gbyte_egress_stamped }}</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.num_egress_stamped_packets }}</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.avg_packet_size_egress_stamped }} B</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.real_port }}</td>
+							{% endwith %}
+						</tr>
+						{% else %}
+						<tr>
+							<td>{{ host.real_port }}</td>
+							<td>{{ host.throughput_gbyte_ingress_stamped }}</td>
+							<td>{{ host.num_ingress_stamped_packets }}</td>
+							<td>{{ host.avg_packet_size_ingress_stamped }} B</td>
+						</tr>
+						{% endif %}
+						{% endfor %}
+						{% endwith %}
+						{% endif %}
+						{% endfor %}
+	
+						<tr>{% for i in "012345678" %}<td style="background-color: gray;"></td>{% endfor %}</tr>
+						{% for loadgen_grp in loadgen_groups %}
+						{% if loadgen_grp.use_group == "checked" %}
+						{% with loadgen_grp_indx=forloop.counter0 %}
+						{% for host in loadgen_grp.loadgens %}
+						{% if forloop.first %}
+						<tr>
+							{% with cur_dut=dut_ports|getbyindex:loadgen_grp_indx %}
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.real_port }}</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.throughput_gbyte_ingress_stamped }}</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.num_ingress_stamped_packets }}</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle">{{ cur_dut.avg_packet_size_ingress_stamped }} B</td>
+							<td rowspan="{{ loadgen_grp.loadgens|length }}" style="vertical-align:middle"><center><i class="fas fa-arrow-right"></i></center></td>
+							<td>{{ host.throughput_gbyte_egress_stamped }}</td>
+							<td>{{ host.num_egress_stamped_packets }}</td>
+							<td>{{ host.avg_packet_size_egress_stamped }} B</td>
+							<td>{{ host.real_port }}</td>
+							{% endwith %}
+						</tr>
+						{% else %}
+						<tr>
+							<td>{{ host.throughput_gbyte_egress_stamped }}</td>
+							<td>{{ host.num_egress_stamped_packets }}</td>
+							<td>{{ host.avg_packet_size_egress_stamped }} B</td>
+							<td>{{ host.real_port }}</td>
+						</tr>
+						{% endif %}
+						{% endfor %}
+	
+						{% endwith %}
+						{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</span>
+	
+
+	<span id="ext_host_table_changeable">
+			<p><u>Measured for  <b>all</b> packets flowing to external host:</u></p>
+			<div class="table-responsive">
+			<table class="table table-bordered table-striped table-highlight">
+			<thead>
+				<tr>
+					<th>Egress Port</th>
+					<th>Byte Count</th>
+					<th>Packet Count</th>
+					<th>Average Packetsize (Bytes)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ ext_host_real }}</td>
+					<td>{{ ext_host_throughput_egress }}</td>
+					<td>{{ ext_host_num_egress_packets }}</td>
+					<td>{{ ext_host_avg_packet_size_egress }}</td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		</span>
+
+	<span id="ext_host_table_changeable_stamped" hidden>
+		<p><u>Measured for  <b>stamped</b> packets flowing to external host:</u></p>
+		<table class="table table-bordered table-striped table-highlight">
+			<thead>
+				<tr>
+					<th>Egress Port</th>
+					<th>Byte Count</th>
+					<th>Packet Count</th>
+					<th>Average Packetsize (Bytes)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ ext_host_real }}</td>
+					<td>{{ ext_host_throughput_egress_stamped }}</td>
+					<td>{{ ext_host_num_egress_stamped_packets }}</td>
+					<td>{{ ext_host_avg_packet_size_egress_stamped }}</td>
+				</tr>
+			</tbody>
+		</table>
+		</span>
+
+
+<script>
+function changeTable(status) {
+	if(status.checked){
+		document.getElementById('changeable_table_stamped').hidden = false;
+		document.getElementById('changeable_table').hidden = true;
+		document.getElementById('ext_host_table_changeable_stamped').hidden = false;
+		document.getElementById('ext_host_table_changeable').hidden = true;
+
+	} else {
+		document.getElementById('changeable_table_stamped').hidden = true;
+		document.getElementById('changeable_table').hidden = false;
+		document.getElementById('ext_host_table_changeable_stamped').hidden = true;
+		document.getElementById('ext_host_table_changeable').hidden = false;
+	}
+}
+</script>
+
+</body>

@@ -1,0 +1,75 @@
+<!--
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+	{% include "middlebox/includes.html"%}
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			refreshStatus();
+			
+			$("#stamper_status").click(function() {
+				refreshStatus();
+			});
+
+			$("#stop_stamper_software").click(function() {
+				$("#output_stamper_status").html('<p>Stopping stamper software ...</p><img src="{% static 'images/spinner.svg' %}" width="150" height="150" />');
+				$.get("/subpage_deploy_stop_stamper_software/", function(data) {
+					location.reload();
+				}, "html");
+			});
+		});
+		function refreshStatus(){
+			$("#output_stamper_status").html('<p>Retrieving stamper status...</p><img src="{% static 'images/spinner.svg' %}" width="150" height="150" />');
+					$.get("/subpage_deploy_stamper_status/", function(data) {
+						$("#output_stamper_status").html(data);
+					}, "html");
+		}
+	</script>
+
+</head>
+<body>
+
+{% include "middlebox/navbar.html"%}
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+<h5>
+<span style="color:grey">configure switch</span>
+&emsp;<i class="fas fa-arrow-right"></i>
+&emsp;<u>deploy configuration</u>
+&emsp;<i class="fas fa-arrow-right"></i>
+&emsp;<span style="color:grey">run tests </span>
+&emsp;<i class="fas fa-arrow-right"></i>
+&emsp;<span style="color:grey">analyze results</span>
+</h5>
+</div>
+<div style="margin-top:20px;"></div>
+<div class="container-fluid">
+<div class="row">
+	<div class="col-md-2">
+		<button id="stamper_status" type="button" style="margin: 2px; width: 200px;" class="save btn btn-secondary"><i style="align-content: left;" class="fas fa-sync"></i> Refresh status</button>
+		<button id="stop_stamper_software" type="button" style="margin: 2px; width: 200px;" class="save btn btn-secondary"><i class="far fa-stop-circle"></i> Stop Stamper</button>
+	</div>
+	<div class="col-md-9"><div id="output_stamper_status" class="card card-body"></div></div>
+</div>
+
+
+</div>
+
+</body>

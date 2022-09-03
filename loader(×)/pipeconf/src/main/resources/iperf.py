@@ -1,0 +1,5 @@
+h1.cmd("/home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/iperf.sh &")
+h2.cmd("/home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/iperf.sh &")
+h3.cmd("/home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/iperf.sh &")
+h4.cmd("/home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/iperf.sh &")
+h5.cmd("/home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/iperf.sh &")

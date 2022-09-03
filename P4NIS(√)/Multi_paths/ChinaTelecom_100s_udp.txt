@@ -1,0 +1,112 @@
+------------------------------------------------------------
+Client connecting to 119.3.230.127, UDP port 3389
+Sending 1470 byte datagrams
+UDP buffer size:  208 KByte (default)
+------------------------------------------------------------
+[  3] local 10.139.137.212 port 44746 connected with 119.3.230.127 port 3389
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0- 1.0 sec  1.91 MBytes  16.1 Mbits/sec
+[  3]  1.0- 2.0 sec  1012 KBytes  8.29 Mbits/sec
+[  3]  2.0- 3.0 sec  1.07 MBytes  8.96 Mbits/sec
+[  3]  3.0- 4.0 sec  1.57 MBytes  13.2 Mbits/sec
+[  3]  4.0- 5.0 sec  1.66 MBytes  13.9 Mbits/sec
+[  3]  5.0- 6.0 sec  1005 KBytes  8.23 Mbits/sec
+[  3]  6.0- 7.0 sec  1.06 MBytes  8.88 Mbits/sec
+[  3]  7.0- 8.0 sec  1.56 MBytes  13.1 Mbits/sec
+[  3]  8.0- 9.0 sec  1.03 MBytes  8.61 Mbits/sec
+[  3]  9.0-10.0 sec  1.50 MBytes  12.5 Mbits/sec
+[  3] 10.0-11.0 sec  1.16 MBytes  9.70 Mbits/sec
+[  3] 11.0-12.0 sec  1.57 MBytes  13.1 Mbits/sec
+[  3] 12.0-13.0 sec  1.66 MBytes  13.9 Mbits/sec
+[  3] 13.0-14.0 sec  1.03 MBytes  8.66 Mbits/sec
+[  3] 14.0-15.0 sec  1.62 MBytes  13.6 Mbits/sec
+[  3] 15.0-16.0 sec  1.55 MBytes  13.0 Mbits/sec
+[  3] 16.0-17.0 sec  1.62 MBytes  13.6 Mbits/sec
+[  3] 17.0-18.0 sec  1.56 MBytes  13.1 Mbits/sec
+[  3] 18.0-19.0 sec  1.05 MBytes  8.78 Mbits/sec
+[  3] 19.0-20.0 sec  1.58 MBytes  13.2 Mbits/sec
+[  3] 20.0-21.0 sec  1.06 MBytes  8.91 Mbits/sec
+[  3] 21.0-22.0 sec  1.02 MBytes  8.58 Mbits/sec
+[  3] 22.0-23.0 sec   500 KBytes  4.09 Mbits/sec
+[  3] 23.0-24.0 sec   511 KBytes  4.19 Mbits/sec
+[  3] 24.0-25.0 sec  0.00 Bytes  0.00 bits/sec
+[  3] 25.0-26.0 sec  0.00 Bytes  0.00 bits/sec
+[  3] 26.0-27.0 sec   508 KBytes  4.16 Mbits/sec
+[  3] 27.0-28.0 sec   571 KBytes  4.68 Mbits/sec
+[  3] 28.0-29.0 sec   507 KBytes  4.15 Mbits/sec
+[  3] 29.0-30.0 sec  1.53 MBytes  12.9 Mbits/sec
+[  3] 30.0-31.0 sec  1.55 MBytes  13.0 Mbits/sec
+[  3] 31.0-32.0 sec  1.55 MBytes  13.0 Mbits/sec
+[  3] 32.0-33.0 sec  1.65 MBytes  13.9 Mbits/sec
+[  3] 33.0-34.0 sec  1.14 MBytes  9.55 Mbits/sec
+[  3] 34.0-35.0 sec  1.10 MBytes  9.20 Mbits/sec
+[  3] 35.0-36.0 sec  1.56 MBytes  13.1 Mbits/sec
+[  3] 36.0-37.0 sec  1.03 MBytes  8.62 Mbits/sec
+[  3] 37.0-38.0 sec  1011 KBytes  8.28 Mbits/sec
+[  3] 38.0-39.0 sec  1.26 MBytes  10.6 Mbits/sec
+[  3] 39.0-40.0 sec  1.32 MBytes  11.1 Mbits/sec
+[  3] 40.0-41.0 sec  1.09 MBytes  9.15 Mbits/sec
+[  3] 41.0-42.0 sec   502 KBytes  4.12 Mbits/sec
+[  3] 42.0-43.0 sec   597 KBytes  4.89 Mbits/sec
+[  3] 43.0-44.0 sec   511 KBytes  4.19 Mbits/sec
+[  3] 44.0-45.0 sec  1.06 MBytes  8.86 Mbits/sec
+[  3] 45.0-46.0 sec   502 KBytes  4.12 Mbits/sec
+[  3] 46.0-47.0 sec  1.06 MBytes  8.86 Mbits/sec
+[  3] 47.0-48.0 sec  1011 KBytes  8.28 Mbits/sec
+[  3] 48.0-49.0 sec  1.06 MBytes  8.86 Mbits/sec
+[  3] 49.0-50.0 sec  1.03 MBytes  8.68 Mbits/sec
+[  3] 50.0-51.0 sec  1.48 MBytes  12.4 Mbits/sec
+[  3] 51.0-52.0 sec  1.10 MBytes  9.21 Mbits/sec
+[  3] 52.0-53.0 sec  1012 KBytes  8.29 Mbits/sec
+[  3] 53.0-54.0 sec  1015 KBytes  8.31 Mbits/sec
+[  3] 54.0-55.0 sec  1.07 MBytes  8.97 Mbits/sec
+[  3] 55.0-56.0 sec  1.68 MBytes  14.1 Mbits/sec
+[  3] 56.0-57.0 sec   512 KBytes  4.20 Mbits/sec
+[  3] 57.0-58.0 sec  1.56 MBytes  13.1 Mbits/sec
+[  3] 58.0-59.0 sec  1.06 MBytes  8.88 Mbits/sec
+[  3] 59.0-60.0 sec  1022 KBytes  8.37 Mbits/sec
+[  3] 60.0-61.0 sec  1.25 MBytes  10.5 Mbits/sec
+[  3] 61.0-62.0 sec   847 KBytes  6.94 Mbits/sec
+[  3] 62.0-63.0 sec  1.55 MBytes  13.0 Mbits/sec
+[  3] 63.0-64.0 sec  1.03 MBytes  8.61 Mbits/sec
+[  3] 64.0-65.0 sec  1.05 MBytes  8.81 Mbits/sec
+[  3] 65.0-66.0 sec  1.03 MBytes  8.64 Mbits/sec
+[  3] 66.0-67.0 sec  1009 KBytes  8.27 Mbits/sec
+[  3] 67.0-68.0 sec  1.59 MBytes  13.3 Mbits/sec
+[  3] 68.0-69.0 sec  1008 KBytes  8.26 Mbits/sec
+[  3] 69.0-70.0 sec  1.05 MBytes  8.82 Mbits/sec
+[  3] 70.0-71.0 sec  1.07 MBytes  8.98 Mbits/sec
+[  3] 71.0-72.0 sec  1.63 MBytes  13.7 Mbits/sec
+[  3] 72.0-73.0 sec  1013 KBytes  8.30 Mbits/sec
+[  3] 73.0-74.0 sec  1.14 MBytes  9.56 Mbits/sec
+[  3] 74.0-75.0 sec  1.04 MBytes  8.76 Mbits/sec
+[  3] 75.0-76.0 sec  1.15 MBytes  9.65 Mbits/sec
+[  3] 76.0-77.0 sec  1005 KBytes  8.23 Mbits/sec
+[  3] 77.0-78.0 sec   594 KBytes  4.87 Mbits/sec
+[  3] 78.0-79.0 sec  1.12 MBytes  9.43 Mbits/sec
+[  3] 79.0-80.0 sec   515 KBytes  4.22 Mbits/sec
+[  3] 80.0-81.0 sec  1.05 MBytes  8.80 Mbits/sec
+[  3] 81.0-82.0 sec  1012 KBytes  8.29 Mbits/sec
+[  3] 82.0-83.0 sec  1.03 MBytes  8.67 Mbits/sec
+[  3] 83.0-84.0 sec  1.06 MBytes  8.93 Mbits/sec
+[  3] 84.0-85.0 sec   498 KBytes  4.08 Mbits/sec
+[  3] 85.0-86.0 sec  1.06 MBytes  8.93 Mbits/sec
+[  3] 86.0-87.0 sec   996 KBytes  8.16 Mbits/sec
+[  3] 87.0-88.0 sec  0.00 Bytes  0.00 bits/sec
+[  3] 88.0-89.0 sec  1.06 MBytes  8.88 Mbits/sec
+[  3] 89.0-90.0 sec  0.00 Bytes  0.00 bits/sec
+[  3] 90.0-91.0 sec   553 KBytes  4.53 Mbits/sec
+[  3] 91.0-92.0 sec   593 KBytes  4.86 Mbits/sec
+[  3] 92.0-93.0 sec   589 KBytes  4.82 Mbits/sec
+[  3] 93.0-94.0 sec   551 KBytes  4.52 Mbits/sec
+[  3] 94.0-95.0 sec   510 KBytes  4.17 Mbits/sec
+[  3] 95.0-96.0 sec   498 KBytes  4.08 Mbits/sec
+[  3] 96.0-97.0 sec   500 KBytes  4.09 Mbits/sec
+[  3] 97.0-98.0 sec   583 KBytes  4.77 Mbits/sec
+[  3] 98.0-99.0 sec   426 KBytes  3.49 Mbits/sec
+[  3] 99.0-100.0 sec   596 KBytes  4.88 Mbits/sec
+[  3]  0.0-100.6 sec   101 MBytes  8.45 Mbits/sec
+[  3] Sent 72276 datagrams
+[  3] Server Report:
+[  3]  0.0-102.3 sec   101 MBytes  8.31 Mbits/sec  71.991 ms    0/72275 (0%)
+[  3]  0.0-102.3 sec  1 datagrams received out-of-order

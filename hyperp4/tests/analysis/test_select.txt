@@ -1,0 +1,103 @@
+The test_select test confirms that p4_hp4 (compiler) does not support
+select(current(x, y)) return statements in parser functions.
+
+Examining what the HLIR looks like for 1) P4 parser select(<field>)
+and 2) P4 parser select(current(x, y)):
+
+simple_router::return select(ethernet.etherType) from 'start':
+h.p4_parse_states['start'].return_statement:
+('select',
+ ['ethernet.etherType'],
+ [([('value', 2048)], 'parse_ipv4'),
+  ([('default',)], 'ingress')
+ ]
+)
+
+0: 'select'
+1: list of fields used as criteria - each element is of type 'str'
+2: list of tuples, where each tuple consists of:
+   - a list of tuples, where each tuple consists of:
+     - 'value' or 'default'
+     - if the first element is 'value', second element is the numeric value
+   - name of the next node (a parser function or control function)
+
+test_select::return select(current(0, 48)) from 'start':
+h.p4_parse_states['start'].return_statement:
+('select',
+ [(0, 48)],
+ [([('value', 17179869184)], 'parse_eth1'),
+  ([('value', 17179869185)], 'parse_eth2'),
+  ([('default',)], 'ingress')
+ ]
+)
+
+0: 'select'
+1: list of fields used as criteria, but if the element is a tuple, evidently
+   that is the indicator that 'current' is in use, with the tuple consisting
+   of the offset and width
+2: list of tuples... as above
+
+DO: have p4_hp4 detect use of 'current' by looking at the type of the elements of the second element of the return_statement
+- e.g.:
+    if isinstance(criteria_fields[0], str):
+      # does not indicate use of 'current'
+      pass
+    elif isinstance(criteria_fields[0], tuple):
+      # indicates use of 'current'
+      pass
+
+A point of confusion:
+
+p4_hp4::build calls the following methods in order of appearance:
+- ...
+- gen_tset_parse_control_entries
+- gen_tset_parse_select_entries
+
+From gen_tset_parse_control_entries, we call walk_parse_tree, which calls
+fill_tics_match_params.
+
+This would imply that fill_tics_match_params supports the generation
+of entries for tset_parse_control, not tset_parse_select.
+
+However, fill_tics_match_params seemingly generates match parameters
+appropriate for tset_parse_select table entries.
+
+Need to examine how return value of fill_tics_match_params is used.
+
+See line 592.
+
+t.match_params where t is a TICS object.
+t.table is from self.tics_table_names, which is populated by process_parse_state,
+and is always a tset_parse_select_* table.
+
+process_parse_state called from walk_parse_tree, called from gen_tset_parse_control_entries.
+
+Evidently tics_list, a list of objects where each objects stores information required to generate a tset_parse_select_* table entry, must be populated before gen_tset_parse_select_entries, where the action and action parameters are generated
+to complete the tset_parse_select_* table entry.
+
+In other words, perhaps gen_tset_parse_control_entries is a bit of a misnomer, as
+it does more than simply generate tset_parse_control entries.
+
+-----
+
+The fix consisted of checks for the type of the criteria field in a few locations
+to avoid a KeyError on '(0, 48)' in field_offsets and h.p4_fields, substituting the
+examination of the tuple for the proper setting of any offset and/or width variable
+needed to construct tset_parse_select match parameters.  Functions affected:
+- fill_parse_select_match_params (previously named fill_tics_match_params)
+- fill_parse_select_match_params_under40 (previously: fill_tics_match_params_under40)
+
+Inspecting impact of fix warrants examination of p4_hp4's data structures related to:
+- tset_parse_control entries
+- tset_parse_select_* entries
+- tset_pipeline_config entries
+
+This includes:
+- field_offsets
+- ps_to_pc
+- pc_to_ps
+- pc_to_preceding_pcs
+- pc_bits_extracted
+- parse_select_table_names
+- vbits
+- commands

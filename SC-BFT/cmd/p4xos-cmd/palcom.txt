@@ -1,0 +1,5 @@
+table_set_default forward_tbl _drop
+table_set_default reset_forward_tbl _drop
+table_add forward_tbl do_l2 0 => 1
+table_add count_tbl do_count 3 => 2
+table_add reset_forward_tbl do_rl2 3 => 2 2

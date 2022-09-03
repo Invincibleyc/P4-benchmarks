@@ -1,0 +1,84 @@
+#include "includes/headers.p4"
+#include "includes/parser.p4"
+#include "includes/intrinsic.p4"
+
+metadata ingress_intrinsic_metadata_t intrinsic_metadata;
+
+counter sent_counter {
+    type: packets;
+    static: modify_flags;
+    instance_count: 2;
+}
+
+/* Added counter for the use of switch 4
+ * in order to count incoming packets. */
+counter recv_counter {
+    type: packets;
+    static: read_flags;
+    instance_count: 2;
+}
+
+action _drop() {
+    drop();
+}
+
+action _set_port(dst) {
+    modify_field(standard_metadata.egress_spec,dst);
+}
+
+action _modify_flags(val) {
+    count(sent_counter,val);
+    modify_field(ipv4.flag_a, val); /* Change */
+}
+
+/* Read the color bit (flag_a) from the ipv4 header and count. */
+action _read_flags(val) {
+    count(recv_counter,val);
+}
+
+table set_port {
+    reads {
+        intrinsic_metadata.time_of_day : ternary;
+	standard_metadata.ingress_port : exact;		
+    }
+    actions {
+        _set_port;
+        _drop;
+    }
+    size: 256;
+}
+
+table modify_flags {
+    reads {
+        intrinsic_metadata.time_of_day : ternary;
+	ipv4.dstAddr : exact;	
+	/* ipv4.flag_a : exact;	*/
+    }
+    actions {
+        _modify_flags;
+        _drop;
+    }
+    size: 256;
+}
+
+/* Added a table for switch 4 to use. */
+table read_flags {
+    reads {	
+	ipv4.flag_a : exact;
+	ipv4.srcAddr : exact;
+    }
+    actions {
+        _read_flags;
+        _drop;
+    }
+    size: 256;
+}
+
+control ingress {
+	apply(modify_flags);
+	apply(read_flags);
+	apply(set_port);
+}
+
+control egress {
+}

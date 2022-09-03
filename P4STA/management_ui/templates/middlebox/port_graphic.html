@@ -1,0 +1,238 @@
+{% autoescape off %}
+/*
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+*/
+{% load management_ui %}
+
+// toggle play button
+play = true;
+window.onload = function() { 
+	document.getElementById("pause_port_animation").addEventListener("click", function(){
+		if (document.getElementById("port_animation_icon").className === "fas fa-pause-circle"){
+			document.getElementById("port_animation_icon").className = "fas fa-play-circle";
+		} else if (document.getElementById("port_animation_icon").className === "fas fa-play-circle"){
+			document.getElementById("port_animation_icon").className = "fas fa-pause-circle";
+		}
+		play = !play;
+	});
+} 
+
+function execute_drawing(output, loadgen_groups, duts, flows){
+    var rect_dimensions = {width: 180, height: 300, x: 300, y: 180};
+    // Make an instance of two and place it on the page.
+	var params = { width: 700, height: 500 };
+	output.innerHTML = "";
+    var two = new Two(params).appendTo(output);
+
+    // two has convenience methods to create shapes.
+    var rect = two.makeRectangle(rect_dimensions.x, rect_dimensions.y, rect_dimensions.width, rect_dimensions.height);
+    rect.stroke = 'black'
+    rect.linewidth = 3;
+
+    var all_hosts = {}
+
+    for(var t=0; t<loadgen_groups.length; t++){
+        start_y = (rect_dimensions.height/loadgen_groups.length)*t
+        end_y = (rect_dimensions.height/loadgen_groups.length)*(t+1)
+        var text_y = start_y + (end_y - start_y)/2 - loadgen_groups[t].length*10 + 10 + 30 //+ 10 in case only one element in list; + 30 is offset from top
+        for(var i=0; i<loadgen_groups[t].length; i++){
+            var text = new Two.Text(loadgen_groups[t][i].ip + " | " + loadgen_groups[t][i].iface, 0, text_y);
+			text.alignment = "left";
+			text.size = 18;
+			if(loadgen_groups[t][i].use_group !== "checked"){
+				text.opacity = 0.5;
+			}
+            two.add(text)
+            var text = new Two.Text(loadgen_groups[t][i].port, 195, text_y);
+			text.alignment = "right";
+			text.size = 18;
+            two.add(text);
+            two.makeLine(rect_dimensions.x-100, text_y, rect_dimensions.x-90, text_y);
+            all_hosts[loadgen_groups[t][i].ip] = {x: rect_dimensions.x-90, y: text_y};
+
+            text_y = text_y + 30;
+        }
+    }
+    
+    for(var x=0; x<duts.length; x++){
+        start_y = (rect_dimensions.height/duts.length)*x;
+        end_y = (rect_dimensions.height/duts.length)*(x+1);
+        var text_y = start_y + (end_y - start_y)/2 + 30 // + 30 is offset from top
+
+        two.makeLine(rect_dimensions.x+100, text_y, rect_dimensions.x+90, text_y);
+        all_hosts[duts[x].name] = {x: rect_dimensions.x+90, y: text_y};
+
+        var text = new Two.Text(duts[x].port + " | " + duts[x].name, 405, text_y);
+		text.alignment = "left";
+		text.size = 18;
+        two.add(text);
+    }
+
+	var colors = ["darkmagenta", "darkred", "darkblue", "darkslategrey", "darkgreen", "darkmagenta", "darkred", "darkblue", "darkslategrey", "darkgreen"];
+
+	var i = 0;
+	var arrows = [];
+    flows.forEach(flow => {
+        arrow1 = two.makeArrow(all_hosts[flow.from1].x, all_hosts[flow.from1].y, all_hosts[flow.to1].x-2, all_hosts[flow.to1].y+5);
+		arrow1.stroke = colors[i];
+		arrow1.opacity = 0.8;
+        if (flow.stamp){
+            arrow1.linewidth = 4;
+        }
+		arrows.push(arrow1);
+        i++;
+    });
+
+    two.makeLine(rect_dimensions.x, 330, rect_dimensions.x, 340);
+	text = two.makeText("external host", rect_dimensions.x, 350);
+	text.size = 18;
+
+	//two.update();
+	// 60 frames per second
+	two.bind('update', function(frameCount) {
+		if(frameCount%60===0 && frameCount%120!==0 && play){
+			//arrows.forEach(arrow => {arrow.opacity=0});
+			two.remove(arrows);
+			arrows.length = 0;
+			var i = 0;
+			flows.forEach(flow => {
+				var x_to = all_hosts[flow.from1].x + ((all_hosts[flow.to1].x-2 - all_hosts[flow.from1].x)/2);
+				var y_to = all_hosts[flow.from1].y + ((all_hosts[flow.to1].y+5 - all_hosts[flow.from1].y)/2);
+
+				arrow1 = two.makeArrow(all_hosts[flow.from1].x, all_hosts[flow.from1].y, x_to, y_to);
+				arrow1.stroke = colors[i];
+				arrow1.opacity = 0.8;
+				if (flow.stamp){
+					arrow1.linewidth = 4;
+				}
+
+				arrows.push(arrow1);
+				i++;
+			});
+		} else if (frameCount%120===0 && play) {
+			two.remove(arrows);
+			arrows.length = 0;
+			//arrows.forEach(arrow => {arrow.opacity=0});//two.remove(arrow)
+			var i = 0;
+			flows.forEach(flow => {
+				arrow1 = two.makeArrow(all_hosts[flow.from1].x, all_hosts[flow.from1].y, all_hosts[flow.to1].x-2, all_hosts[flow.to1].y+5);
+				arrow1.stroke = colors[i];
+				arrow1.opacity = 0.8;
+				if (flow.stamp){
+					arrow1.linewidth = 4;
+				}
+				arrows.push(arrow1);
+				i++;
+			});
+		}
+	}).play();
+}
+
+function get_loadgen_ip_by_group_index(indx){
+	all_loadgen_groups = [];
+	{% for loadgen_grp in loadgen_groups %}
+	{% if loadgen_grp.use_group == "checked" %}
+	all_loadgen_groups.push({{loadgen_grp}});
+	{% endif %}
+	{% endfor %}
+	var all_ips = [];
+	for(var i=0; i<all_loadgen_groups.length; i++){
+		if(all_loadgen_groups[i]["group"] == indx){
+			for(var z=0; z<all_loadgen_groups[i]["loadgens"].length; z++){
+				all_ips.push(all_loadgen_groups[i]["loadgens"][z]["loadgen_ip"])
+			}
+		}
+	}
+	return all_ips;
+}
+
+
+// global vars (flow needed for onchange event in checkbox)
+var flows = [];
+var loadgen_groups;
+var duts;
+function draw(output, changed=false){
+	var t_loadgen_groups = [{% for loadgen_grp in loadgen_groups %}[],{%endfor%}]
+
+	{% for loadgen_grp in loadgen_groups %}
+	{% with parent_loop=forloop.counter0%}
+	{% for host in loadgen_grp.loadgens %}
+		use_port_inp = document.getElementById("dut_{{loadgen_grp.group}}_use_port")
+		var use_group_live = "{{loadgen_grp.use_group}}";
+		if(use_port_inp !== null){
+			if(use_port_inp.checked){
+				use_group_live = "checked";
+			} else {
+				use_group_live = "unchecked";
+			}
+		}
+		t_loadgen_groups[{{parent_loop}}].push({"ip": "{{host.loadgen_ip}}", "iface": "{{host.loadgen_iface}}", "port": "{{host.real_port}}", "use_group": use_group_live});
+	{% endfor %}
+	{% endwith %}
+	{% endfor %}
+
+	loadgen_groups = t_loadgen_groups;
+
+	var t_duts = []
+	{% for dut in dut_ports %}
+	t_duts.push({"name": "DUT {{dut.id}}", "port": "{{dut.real_port}}"});
+	{% endfor %}
+
+	duts = t_duts;
+
+	if (!changed){
+		var t_flows = []
+		
+		{% for loadgen_grp in loadgen_groups %}
+		{% with parent_loop=forloop.counter0%}
+		{% for host in loadgen_grp.loadgens %}
+			{% with dut=dut_ports|getbyindex:parent_loop %}
+			{% if dut.use_port == "checked" %}
+				{% if dut.stamp_outgoing == "checked" %}
+
+					t_flows.push({"stamp": true, "from1": "{{host.loadgen_ip}}", "to1": "DUT {{dut.id}}"});
+
+				{% else %}
+
+					t_flows.push({"stamp": false, "from1": "{{host.loadgen_ip}}", "to1": "DUT {{dut.id}}"});
+
+				{% endif %}
+			{% endif %}
+			{% endwith %}
+	
+		{% endfor %}
+		{% endwith %}
+		{% endfor %}
+
+		flows = t_flows;
+	} else {
+		flows.forEach(flow => {
+			flow.stamp = false;
+		});
+		{% for dut in dut_ports %}
+		if (document.getElementById("dut_{{dut.id}}_outgoing_stamp").checked){
+			flows.forEach(flow => {
+				if(flow.to1 === "DUT {{dut.id}}"){
+					flow.stamp = true;
+				}
+			});
+		}
+		{% endfor %}
+	}
+	execute_drawing(output, t_loadgen_groups, t_duts, flows);
+}
+
+
+{% endautoescape %}

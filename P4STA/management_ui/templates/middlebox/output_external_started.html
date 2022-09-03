@@ -1,0 +1,259 @@
+<!--
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. -->
+
+{% load static %}
+{% load management_ui %}
+<head>
+	<script type="text/javascript">
+		$(document).ready(function(){ 
+			$("#reset").click(function() {
+				$("#output_reset").html('<img src="{% static 'images/spinner.svg' %}" width="150" height="150" />');
+				$.get("/subpage_run_reset/", function(data) {
+					$("#output_reset").html(data);
+				}, "html");
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		function exec_loadgens(){
+			var el = document.getElementsByName("csrfmiddlewaretoken");
+			csrf_value = el[0].getAttribute("value");
+			var dur = document.getElementById("inputDuration").value;
+			var l4_selected = "";
+			if(document.getElementById("tcp_selected").checked){
+				l4_selected = "tcp";
+			} else {
+				l4_selected = "udp";
+			}
+			var packet_size_mtu = document.getElementById("packet_size_field").value;
+			if (packet_size_mtu == ""){ // packet_size = "" if initial value of 1500 is not changed (no click at range bar)
+				packet_size_mtu = "1500";
+			}
+			var loadgen_rate_limit = document.getElementById("loadgen_rate_limit").value;
+			var loadgen_flows = document.getElementById("loadgen_flows").value;
+			if(loadgen_flows === ""){
+				loadgen_flows = "3";
+			}
+
+			var loadgen_server_groups = []; //list of IDs of groups which should execute server endpoint (flow destination)
+			var server_selectors = document.getElementsByClassName("server_selectors");
+			for(var i=0; i<server_selectors.length; i++){
+				if (server_selectors[i].checked){
+					loadgen_server_groups.push(server_selectors[i].value);
+				}
+			}
+
+			{% autoescape off %}var loadgen_groups = {{cfg.loadgen_groups}}{% endautoescape %}
+			var hosts = 0
+			for(var i=0; i<loadgen_groups.length; i++){
+				if( loadgen_server_groups.indexOf(loadgen_groups[i]["group"].toString()) > -1 ){
+					hosts = hosts + loadgen_groups[i]["loadgens"].length;
+				}
+			}
+
+			var ms_loadbar = (5000 + hosts*1750*parseInt(loadgen_flows) + (parseInt(dur)*1000)).toString()
+			var loadbar = '<div class="progress"><div class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div></div>'
+			var scr = document.createElement('script');
+			scr.type = 'text/javascript';
+			scr.language = 'javascript';
+			scr.text = '$(".progress-bar").animate({width: "100%"}, ' + ms_loadbar + ');';
+			// insert loadbar befor results from ajax call arrive, html code + javscript element
+			document.getElementById("output_loadgens").innerHTML = loadbar;
+			document.getElementById("output_loadgens").append(scr);
+			$.ajax({
+			      type: "POST",
+			      url: "/subpage_run_run_loadgens/",
+			      data: {
+					'csrfmiddlewaretoken': csrf_value,
+					'duration': dur,
+					'l4_selected': l4_selected,
+					'packet_size_mtu': packet_size_mtu,
+					'loadgen_rate_limit': loadgen_rate_limit,
+					'loadgen_flows': loadgen_flows,
+					'loadgen_server_groups': loadgen_server_groups
+			      },
+			      success: function (response) {
+				document.getElementById("output_loadgens").innerHTML = response;
+			      }
+			});
+	}
+	function updateTextInput(val) {
+        	document.getElementById('packet_size_field').value=val; 
+        }
+	
+	function load_status_overview() {
+		$("#status_overview").html('<p>Retrieving status ...</p><img src="{% static 'images/spinner.svg' %}" width="150" height="150" />');
+		$.get("/status_overview/", function(data) {
+			$("#status_overview").html(data);
+		}, "html");
+		document.getElementById("show_status").innerHTML = "Refresh";
+	}
+	</script> 
+
+<style>
+.dot_red {
+  height: 15px;
+  width: 15px;
+  background-color: #F00;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot_green {
+  height: 15px;
+  width: 15px;
+  background-color: #008000;
+  border-radius: 50%;
+  display: inline-block;
+}
+</style>
+
+</head>
+
+{% csrf_token %}
+{% if running == True and errors|length == 0 %}
+<p>External host started listening via multicast. Press the stop button to get the results.</p>
+<p>You should reset the switch registers to get exact results.</p>
+<p>Results from external Host, P4 registers and iPerf3 get automaticly saved when you press stop!<p>
+<div class="row">
+	<div class="col-md-2">
+	{% if running == True %}
+		<button id="reset" type="button" class="btn btn-danger">Reset P4 registers</button>
+	{% else %}
+		<span style="color:red;">P4 device is not reachable. Please start it at <a href="/2/">Deploy</a>
+	{% endif %}
+	
+	</div>
+	<div class="col-md-10"><div id="output_reset"></div></div>
+</div>
+<div style="margin-top:20px;"></div>
+<hr/>
+<div class="row">
+	<div class="col-md-12">Execute loadgens:</div>
+</div>
+
+<div style="margin-top:20px;"></div>
+
+<div class="row">
+	<div class="col-md-3">Duration of test in seconds: </div>
+	<div class="col-md-9"><input type="number" class="form-control" id="inputDuration" value="10" placeholder="10"></div>
+</div>
+<hr/>	
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3">The P4-Device is configured to stamp:</div>
+	<div class="col-md-9">
+		<p>TCP: <span class='{% if cfg.stamp_tcp == "checked" %}dot_green{% else %}dot_red{% endif %}'></span>
+			UDP: <span class='{% if cfg.stamp_udp == "checked" %}dot_green{% else %}dot_red{% endif %}'></span></p>
+	</div>
+</div>
+<hr/>
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3">Loadgen Mode: </div>
+	<div class="col-md-9">
+		<div class="custom-control custom-radio custom-control-inline">
+		  <input type="radio" id="tcp_selected" name="l4_selection" class="custom-control-input" value="tcp" checked>
+		  <label class="custom-control-label" for="tcp_selected">TCP</label>
+		</div>
+		<div class="custom-control custom-radio custom-control-inline">
+		  <input type="radio" id="udp_selected" name="l4_selection" class="custom-control-input" value="udp">
+		  <label class="custom-control-label" for="udp_selected">UDP <div id="not_selected" style="color: red;"></div></label>
+		</div>
+
+	</div>
+</div>
+<hr/>
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3" id="packet_size" data-toggle="tooltip" data-placement="top" title="Packet size (MTU = Payload of Ethernet Frame) to big -> fragmentation">Packet Size: </div>
+	<div class="col-md-9">
+		{% for loadgen_grp in cfg.loadgen_groups %}
+			{% if loadgen_grp.use_group == "checked" %}<p>Loadgen Group {{loadgen_grp.group}}: {% for host in loadgen_grp.loadgens %}{% if not forloop.first %} | {% endif %}<b>[{{host.loadgen_iface}} {{host.loadgen_ip}}]:</b> MTU {{host.mtu}}  {% endfor %}</p>{% endif %}
+		{% endfor %}
+		<p><b>Smallest MTU at configured hosts:</b> {{min_mtu}}</p>
+		<label for="packet_size">MTU 200 - 1500 Byte</label>
+		<input type="range" class="custom-range" min="200" max="1500" id="packet_size" value="{{min_mtu}}" onchange="updateTextInput(this.value);"><input class="form-control" type="text" id="packet_size_field" placeholder="{{min_mtu}}">
+	<p>A MTU of 1500 could be to big in some cases (e.g. BMV2), try a smaller value if the execution fails.</p>
+	</div>
+</div>
+<hr/>
+
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Limit the throughput at loadgen side. 1 Host/3 Streams with limit 15Mbit/s = 5Mbit/s per stream">Total Rate Limit [Mbit/s]: </div>
+	<div class="col-md-9"><input type="number" class="form-control" min="1" id="loadgen_rate_limit" value="" placeholder="&#8734; [Mbit/s]"></div>
+</div>
+<hr/>
+
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Default 3 instances per host, 1 is mostly not sufficient for multiple Gbit/s throughput">Flows per Host (Instances): </div>
+	<div class="col-md-9"><input type="number" class="form-control" min="1" id="loadgen_flows" value="" placeholder="3"></div>
+</div>
+<hr/>
+
+
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Default Group 1, Client groups send data to server groups">Choose Server Group(s): </div>
+	<div class="col-md-9">
+		<div id="accordion">
+			{% for loadgen_grp in cfg.loadgen_groups %}
+			{% if loadgen_grp.use_group == "checked" %}
+			<div class="card">
+			  <div class="card-header" id="heading{{loadgen_grp.group}}">
+				<h5 class="mb-0">
+					<input type="checkbox" class="form-check-input server_selectors" id="loadgen_grp_{{loadgen_grp.group}}_server" name="loadgen_grp_{{loadgen_grp.group}}_server" value="{{loadgen_grp.group}}">
+					<label class="form-check-label" for="loadgen_grp_{{loadgen_grp.group}}_server">Group {{loadgen_grp.group}}</label>
+				  <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{loadgen_grp.group}}" aria-expanded="true" aria-controls="collapse{{loadgen_grp.group}}">Show</button>
+				</h5>
+			  </div>
+		  
+			  <div id="collapse{{loadgen_grp.group}}" class="collapse" aria-labelledby="heading{{loadgen_grp.group}}" data-parent="#accordion">
+				<div class="card-body">
+					{% for host in loadgen_grp.loadgens %}
+					<p>Port <b>{{host.real_port}}</b> conntected to <b>{{host.loadgen_iface}}</b>: <b>{{host.loadgen_ip}}</b> | <b>{{host.loadgen_mac}}</b> </p>
+					{% endfor %}
+				</div>
+			  </div>
+			</div>
+			{% endif %}
+			{% endfor %}
+
+		  </div>
+		  
+	</div>
+</div>
+<hr/>	
+
+
+
+<div style="margin-top:10px;"></div>
+<div class="row">
+	<div class="col-md-2"><button id="exec_loadgen" type="button" class="save btn btn-secondary" onclick="exec_loadgens()">Start iPerf3</button></div>
+	<div class="col-md-10"><div id="output_loadgens" class="card card-body"></div></div>
+</div>
+{% elif running == False %}
+<span style="color: red">P4 device is not reachable. Please start it at <a href="/2/">Deploy</a></span>
+<button id="show_status" type="button" class="save btn btn-secondary" onclick="load_status_overview();">Show Status</button></h2> <div id="status_overview"></div>
+
+
+{% elif errors|length > 0 %}
+{% for error in errors %}
+<p>{{error}}</p>
+{% endfor %}
+<p>Aborted starting of external host. Please check your configuration at <a href="/">Configure</a></p>
+{% endif %}

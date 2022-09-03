@@ -1,0 +1,68 @@
+[+ std_header +]
+[+ this_header +]
+
+/*
+  TODO: expand because there are three parameters in a bit_xor:
+  - dst
+  - fld/val 1
+  - fld/val 2
+  Combinatorics say that if we consider [meta|extracted] as
+  options for dst, and [meta|extracted|const] for fld/val 1
+  and fld/val 2, there would be 18 actions to cover all
+  cases
+*/
+
+action bit_xor_meta_meta_const(mlshift, mrshift, vlshift,
+                               dest_mask, src_mask,
+                               val) {
+  modify_field(tmeta.data,
+    (tmeta.data & ~dest_mask) | 
+      ( (((val << vlshift) ^ (tmeta.data & (src_mask << vlshift)))
+        << mlshift) >> mrshift )
+  );
+}
+
+action bit_xor_extracted_extracted_const(elshift, ershift, vlshift,
+                                         dest_mask, src_mask,
+                                         val) {
+  modify_field(extracted.data,
+    (extracted.data & ~dest_mask) | 
+      ( (((val << vlshift) ^ (extracted.data & (src_mask << vlshift)))
+        << elshift) >> ershift )
+  );
+}
+
+action bit_xor_meta_extracted_const(elshift, ershift, vlshift,
+                                    dest_mask, src_mask,
+                                    val) {
+  modify_field(tmeta.data,
+    (tmeta.data & ~dest_mask) |
+      ( (((val << vlshift) ^ (extracted.data & (src_mask << vlshift)))
+        << elshift) >> ershift )
+  );
+}
+
+
+[+ dloop +]
+table t_bit_xor_[+X+][+Y+] {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_primitive_state.subtype[+Y+] : exact;
+    meta_primitive_state.action_ID : exact;
+    meta_primitive_state.match_ID : ternary;
+  }
+  actions {
+    bit_xor_meta_meta_const;
+    bit_xor_extracted_extracted_const;
+    bit_xor_meta_extracted_const;
+    _no_op;
+  }
+}
+[+ enddloop +]
+
+[+ dloop +]
+control do_bit_xor_[+X+][+Y+] {
+  apply(t_bit_xor_[+X+][+Y+]);
+}
+
+[+ enddloop +]

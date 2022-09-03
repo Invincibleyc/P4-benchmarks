@@ -1,0 +1,2 @@
+id < MAX_ENTRIES
+bytes_int >= 0

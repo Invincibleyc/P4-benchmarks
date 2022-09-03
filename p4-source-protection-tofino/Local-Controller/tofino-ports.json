@@ -1,0 +1,22 @@
+{
+  "s1": [
+    {
+      "port": 1,
+      "channel": 0,
+      "speed": 2,
+      "flood": true
+    },
+    {
+      "port": 1,
+      "channel": 1,
+      "speed": 2,
+      "flood": true
+    },
+    {
+      "port": 1,
+      "channel": 2,
+      "speed": 2,
+      "flood": true
+    }
+ ]
+}

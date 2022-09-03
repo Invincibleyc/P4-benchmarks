@@ -1,0 +1,128 @@
+[+ std_header +]
+[+ this_header +]
+
+// standard parameter order:
+// [leftshift] [rightshift] [dest mask] [src mask | src val]
+
+// 1
+action mod_meta_stdmeta_ingressport(leftshift, tmeta_mask) { 
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((meta_ctrl.virt_ingress_port << leftshift) & tmeta_mask)); // last "& mask" probably unnecessary
+}
+
+// 2
+action mod_meta_stdmeta_packetlength(leftshift, tmeta_mask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((standard_metadata.packet_length << leftshift) & tmeta_mask));
+}
+
+// 3
+action mod_meta_stdmeta_egressspec(leftshift, tmeta_mask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((meta_ctrl.virt_egress_spec << leftshift) & tmeta_mask));
+}
+
+// 4
+action mod_meta_stdmeta_egressport(leftshift, tmeta_mask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((standard_metadata.egress_port << leftshift) & tmeta_mask));
+}
+
+// 5
+action mod_meta_stdmeta_egressinst(leftshift, tmeta_mask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((standard_metadata.egress_instance << leftshift) & tmeta_mask));
+}
+
+// 6
+action mod_meta_stdmeta_insttype(leftshift, tmeta_mask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((standard_metadata.instance_type << leftshift) & tmeta_mask));
+}
+
+// 7
+action mod_stdmeta_egressspec_meta(rightshift, tmask) {
+  modify_field(meta_ctrl.virt_egress_spec, (tmeta.data >> rightshift) & tmask);
+}
+
+// 8
+action mod_meta_const(leftshift, tmeta_mask, val) {
+  modify_field(tmeta.data, (tmeta.data & ~tmeta_mask) | ((val << leftshift) & tmeta_mask));
+}
+
+// 9
+action mod_stdmeta_egressspec_const(val) {
+  modify_field(meta_ctrl.virt_egress_spec, val);
+}
+
+// 10
+action mod_extracted_const(leftshift, emask, val) {
+    modify_field(extracted.data, (extracted.data & ~emask) | ((val << leftshift) & emask));
+}
+
+// 11
+action mod_stdmeta_egressspec_stdmeta_ingressport() {
+  modify_field(meta_ctrl.virt_egress_spec, meta_ctrl.orig_virt_ingress_port);
+}
+
+// 12
+action mod_extracted_extracted(leftshift, rightshift, msk) {
+  modify_field(extracted.data, (extracted.data & ~msk) | (((extracted.data << leftshift) >> rightshift) & msk) );
+}
+
+// 13
+action mod_meta_extracted(leftshift, rightshift, tmask, emask) {
+  modify_field(tmeta.data, (tmeta.data & ~tmask) | (((extracted.data << leftshift) >> rightshift) & emask));
+}
+
+// 14
+action mod_extracted_meta(leftshift, rightshift, emask, tmask) {
+  modify_field(extracted.data, (extracted.data & ~emask) | ( ((tmeta.data << leftshift) >> rightshift) & tmask));
+}
+
+//15
+action mod_extracted_stdmeta_ingressport(leftshift, msk) {
+  modify_field(extracted.data, (extracted.data & ~msk) | (standard_metadata.ingress_port << leftshift));
+}
+// TODO: add rest of the modify_field actions
+
+action _no_op() {
+  no_op();
+}
+
+[+ dloop +]
+table t_mod_[+X+][+Y+] {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_primitive_state.subtype[+Y+] : exact;
+    meta_primitive_state.action_ID : exact;
+    meta_primitive_state.match_ID : ternary;
+  }
+  actions {
+    mod_meta_stdmeta_ingressport;
+    mod_meta_stdmeta_packetlength;
+    mod_meta_stdmeta_egressspec;
+    mod_meta_stdmeta_egressport;
+    mod_meta_stdmeta_egressinst;
+    mod_meta_stdmeta_insttype;
+    mod_stdmeta_egressspec_meta;
+    mod_meta_const;
+    mod_stdmeta_egressspec_const;
+    mod_extracted_const;
+    mod_stdmeta_egressspec_stdmeta_ingressport;
+    mod_extracted_extracted;
+    mod_meta_extracted;
+    mod_extracted_meta;
+    mod_extracted_stdmeta_ingressport;
+    _no_op;
+  }
+}
+[+ enddloop +]
+
+[+ dloop +]
+control do_modify_field_[+X+][+Y+] {
+  // subtypes 7, 9, 11 all write to stdmeta.egress_spec
+  if ( (meta_ctrl.econd == 0) or
+       (meta_ctrl.virt_egress_spec == 0) or
+       ((meta_primitive_state.subtype[+Y+] != 7) and
+        (meta_primitive_state.subtype[+Y+] != 9) and
+        (meta_primitive_state.subtype[+Y+] != 11)) ) {
+    apply(t_mod_[+X+][+Y+]);
+  }
+}
+
+[+ enddloop +]

@@ -1,0 +1,9 @@
+table_set_default bier_slice_and_recirc do_bier_slice_and_recirc
+table_set_default recirc do_recirc
+table_set_default fix_ethertype do_fix_ethertype
+table_set_default bier_te_frr do_bier_te_frr
+table_set_default bier_te_bbe do_bier_te_bbe
+table_set_default bier_bift _drop
+table_set_default bier_te_bift _drop
+mirroring_add 1 0
+table_set_default bier_te_bfd do_bier_te_bfd 0

@@ -1,0 +1,218 @@
+tables {
+  preamble {
+    id: 33591584
+    name: "dmacTable"
+    alias: "dmacTable"
+  }
+  match_fields {
+    id: 1
+    name: "ethernet.dstAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16821952
+  }
+  action_refs {
+    id: 16778870
+  }
+  action_refs {
+    id: 16779908
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly()"
+  }
+  size: 1024
+  idle_timeout_behavior: NO_TIMEOUT
+}
+tables {
+  preamble {
+    id: 33604139
+    name: "isThisIsland"
+    alias: "isThisIsland"
+  }
+  match_fields {
+    id: 1
+    name: "island_hop.dstIsland"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16839854
+  }
+  action_refs {
+    id: 16781910
+    annotations: "@defaultonly()"
+  }
+  size: 1
+  idle_timeout_behavior: NO_TIMEOUT
+}
+tables {
+  preamble {
+    id: 33556779
+    name: "islandTable"
+    alias: "islandTable"
+  }
+  match_fields {
+    id: 1
+    name: "island_hop.dstIsland"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16815546
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly()"
+  }
+  size: 1024
+  idle_timeout_behavior: NO_TIMEOUT
+}
+tables {
+  preamble {
+    id: 33578953
+    name: "smacTable"
+    alias: "smacTable"
+  }
+  match_fields {
+    id: 1
+    name: "ethernet.srcAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16830682
+  }
+  action_refs {
+    id: 16781910
+  }
+  size: 1024
+  idle_timeout_behavior: NO_TIMEOUT
+}
+actions {
+  preamble {
+    id: 16800567
+    name: "NoAction"
+    alias: "NoAction"
+  }
+}
+actions {
+  preamble {
+    id: 16821952
+    name: "l2_broadcast"
+    alias: "l2_broadcast"
+  }
+  params {
+    id: 1
+    name: "group"
+    bitwidth: 16
+  }
+}
+actions {
+  preamble {
+    id: 16778870
+    name: "add_island_header"
+    alias: "add_island_header"
+  }
+  params {
+    id: 1
+    name: "dstIsland"
+    bitwidth: 48
+  }
+  params {
+    id: 2
+    name: "srcIsland"
+    bitwidth: 48
+  }
+  params {
+    id: 3
+    name: "egressPort"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 16779908
+    name: "l2_forward"
+    alias: "l2_forward"
+  }
+  params {
+    id: 1
+    name: "port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 16839854
+    name: "strip_island_header"
+    alias: "strip_island_header"
+  }
+}
+actions {
+  preamble {
+    id: 16781910
+    name: "noop"
+    alias: "noop"
+  }
+}
+actions {
+  preamble {
+    id: 16815546
+    name: "forward_to_island"
+    alias: "forward_to_island"
+  }
+  params {
+    id: 1
+    name: "port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 16830682
+    name: "send_l2_digest"
+    alias: "send_l2_digest"
+  }
+}
+digests {
+  preamble {
+    id: 385921627
+    name: "l2_digest"
+    alias: "l2_digest"
+  }
+  type_spec {
+    struct {
+      name: "l2_digest"
+    }
+  }
+}
+type_info {
+  structs {
+    key: "l2_digest"
+    value {
+      members {
+        name: "srcAddr"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 48
+            }
+          }
+        }
+      }
+      members {
+        name: "ingress_port"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 9
+            }
+          }
+        }
+      }
+    }
+  }
+}

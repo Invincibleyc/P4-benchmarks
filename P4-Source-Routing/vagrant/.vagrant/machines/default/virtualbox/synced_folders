@@ -1,0 +1,1 @@
+{"virtualbox":{"/mnt/p4":{"guestpath":"/mnt/p4","hostpath":"/home/ben/P4-Source-Routing","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/home/ben/P4-Source-Routing/vagrant","disabled":false,"__vagrantfile":true}}}

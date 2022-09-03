@@ -1,0 +1,117 @@
+mirroring_add 0 0
+mirroring_add 1 1
+mirroring_add 2 2
+mirroring_add 3 3
+mirroring_add 4 4
+table_set_default update_vdev_ID a_update_vdev_ID
+table_set_default tset_pr_SEB a_pr_import_SEB
+table_set_default tset_pr_40_59 a_pr_import_40_59
+table_set_default tset_pr_60_79 a_pr_import_60_79
+table_set_default tset_pr_80_99 a_pr_import_80_99
+table_set_default t_prep_deparse_00_38 a_prep_deparse_00_38
+table_set_default t_prep_deparse_SEB a_prep_deparse_SEB
+table_set_default t_prep_deparse_40_59 a_prep_deparse_40_59
+table_set_default t_prep_deparse_60_79 a_prep_deparse_60_79
+table_set_default t_prep_deparse_80_99 a_prep_deparse_80_99
+table_set_default egress_filter a_drop
+table_add t_resize_pr _no_op 0 =>
+table_add t_resize_pr a_resize_pr_1 1 =>
+table_add t_resize_pr a_resize_pr_2 2 =>
+table_add t_resize_pr a_resize_pr_3 3 =>
+table_add t_resize_pr a_resize_pr_4 4 =>
+table_add t_resize_pr a_resize_pr_5 5 =>
+table_add t_resize_pr a_resize_pr_6 6 =>
+table_add t_resize_pr a_resize_pr_7 7 =>
+table_add t_resize_pr a_resize_pr_8 8 =>
+table_add t_resize_pr a_resize_pr_9 9 =>
+table_add t_resize_pr a_resize_pr_10 10 =>
+table_add t_resize_pr a_resize_pr_11 11 =>
+table_add t_resize_pr a_resize_pr_12 12 =>
+table_add t_resize_pr a_resize_pr_13 13 =>
+table_add t_resize_pr a_resize_pr_14 14 =>
+table_add t_resize_pr a_resize_pr_15 15 =>
+table_add t_resize_pr a_resize_pr_16 16 =>
+table_add t_resize_pr a_resize_pr_17 17 =>
+table_add t_resize_pr a_resize_pr_18 18 =>
+table_add t_resize_pr a_resize_pr_19 19 =>
+table_add t_resize_pr a_resize_pr_20 20 =>
+table_add t_resize_pr a_resize_pr_21 21 =>
+table_add t_resize_pr a_resize_pr_22 22 =>
+table_add t_resize_pr a_resize_pr_23 23 =>
+table_add t_resize_pr a_resize_pr_24 24 =>
+table_add t_resize_pr a_resize_pr_25 25 =>
+table_add t_resize_pr a_resize_pr_26 26 =>
+table_add t_resize_pr a_resize_pr_27 27 =>
+table_add t_resize_pr a_resize_pr_28 28 =>
+table_add t_resize_pr a_resize_pr_29 29 =>
+table_add t_resize_pr a_resize_pr_30 30 =>
+table_add t_resize_pr a_resize_pr_31 31 =>
+table_add t_resize_pr a_resize_pr_32 32 =>
+table_add t_resize_pr a_resize_pr_33 33 =>
+table_add t_resize_pr a_resize_pr_34 34 =>
+table_add t_resize_pr a_resize_pr_35 35 =>
+table_add t_resize_pr a_resize_pr_36 36 =>
+table_add t_resize_pr a_resize_pr_37 37 =>
+table_add t_resize_pr a_resize_pr_38 38 =>
+table_add t_resize_pr a_resize_pr_39 39 =>
+table_add t_resize_pr _no_op 40 =>
+table_add t_resize_pr a_resize_pr_41 41 =>
+table_add t_resize_pr a_resize_pr_42 42 =>
+table_add t_resize_pr a_resize_pr_43 43 =>
+table_add t_resize_pr a_resize_pr_44 44 =>
+table_add t_resize_pr a_resize_pr_45 45 =>
+table_add t_resize_pr a_resize_pr_46 46 =>
+table_add t_resize_pr a_resize_pr_47 47 =>
+table_add t_resize_pr a_resize_pr_48 48 =>
+table_add t_resize_pr a_resize_pr_49 49 =>
+table_add t_resize_pr a_resize_pr_50 50 =>
+table_add t_resize_pr a_resize_pr_51 51 =>
+table_add t_resize_pr a_resize_pr_52 52 =>
+table_add t_resize_pr a_resize_pr_53 53 =>
+table_add t_resize_pr a_resize_pr_54 54 =>
+table_add t_resize_pr a_resize_pr_55 55 =>
+table_add t_resize_pr a_resize_pr_56 56 =>
+table_add t_resize_pr a_resize_pr_57 57 =>
+table_add t_resize_pr a_resize_pr_58 58 =>
+table_add t_resize_pr a_resize_pr_59 59 =>
+table_add t_resize_pr a_resize_pr_60 60 =>
+table_add t_resize_pr a_resize_pr_61 61 =>
+table_add t_resize_pr a_resize_pr_62 62 =>
+table_add t_resize_pr a_resize_pr_63 63 =>
+table_add t_resize_pr a_resize_pr_64 64 =>
+table_add t_resize_pr a_resize_pr_65 65 =>
+table_add t_resize_pr a_resize_pr_66 66 =>
+table_add t_resize_pr a_resize_pr_67 67 =>
+table_add t_resize_pr a_resize_pr_68 68 =>
+table_add t_resize_pr a_resize_pr_69 69 =>
+table_add t_resize_pr a_resize_pr_70 70 =>
+table_add t_resize_pr a_resize_pr_71 71 =>
+table_add t_resize_pr a_resize_pr_72 72 =>
+table_add t_resize_pr a_resize_pr_73 73 =>
+table_add t_resize_pr a_resize_pr_74 74 =>
+table_add t_resize_pr a_resize_pr_75 75 =>
+table_add t_resize_pr a_resize_pr_76 76 =>
+table_add t_resize_pr a_resize_pr_77 77 =>
+table_add t_resize_pr a_resize_pr_78 78 =>
+table_add t_resize_pr a_resize_pr_79 79 =>
+table_add t_resize_pr a_resize_pr_80 80 =>
+table_add t_resize_pr a_resize_pr_81 81 =>
+table_add t_resize_pr a_resize_pr_82 82 =>
+table_add t_resize_pr a_resize_pr_83 83 =>
+table_add t_resize_pr a_resize_pr_84 84 =>
+table_add t_resize_pr a_resize_pr_85 85 =>
+table_add t_resize_pr a_resize_pr_86 86 =>
+table_add t_resize_pr a_resize_pr_87 87 =>
+table_add t_resize_pr a_resize_pr_88 88 =>
+table_add t_resize_pr a_resize_pr_89 89 =>
+table_add t_resize_pr a_resize_pr_90 90 =>
+table_add t_resize_pr a_resize_pr_91 91 =>
+table_add t_resize_pr a_resize_pr_92 92 =>
+table_add t_resize_pr a_resize_pr_93 93 =>
+table_add t_resize_pr a_resize_pr_94 94 =>
+table_add t_resize_pr a_resize_pr_95 95 =>
+table_add t_resize_pr a_resize_pr_96 96 =>
+table_add t_resize_pr a_resize_pr_97 97 =>
+table_add t_resize_pr a_resize_pr_98 98 =>
+table_add t_resize_pr a_resize_pr_99 99 =>
+table_add t_resize_pr a_resize_pr_100 100 =>

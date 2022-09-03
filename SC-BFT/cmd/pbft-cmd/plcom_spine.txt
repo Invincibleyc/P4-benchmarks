@@ -1,0 +1,10 @@
+table_set_default egress_ta _drop
+table_add egress_ta do_forward 2 1 0 => 1 0
+table_set_default compare_table no_op 
+table_add compare_table init_s 2 => 
+table_add compare_table css_count 4 => 1
+table_add compare_table css_count 6 => 2
+table_add compare_table css_count 8 => 3
+table_add egress_ta do_forward 4 2 1 => 2 1
+table_add egress_ta do_forward 6 3 3 => 2 2
+table_add egress_ta do_forward 8 4 4 => 2 3

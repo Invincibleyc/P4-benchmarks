@@ -1,0 +1,6 @@
+[submodule "Repetita"]
+	path = Repetita
+	url = https://github.com/svissicchio/Repetita.git
+[submodule "intsight-netfpga"]
+	path = intsight-netfpga
+	url = https://github.com/jonadmark/intsight-netfpga.git

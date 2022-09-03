@@ -1,0 +1,1 @@
+cat /home/ger/onos/apps/p4-tutorial/pipeconf/src/main/resources/mirroring_mc_commands | simple_switch_CLI --thrift-port $1

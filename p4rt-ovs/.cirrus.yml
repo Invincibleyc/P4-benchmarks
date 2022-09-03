@@ -1,0 +1,32 @@
+freebsd_build_task:
+
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-12-1-snap
+      image_family: freebsd-11-3-snap
+    cpu: 4
+    memory: 8G
+
+  env:
+    DEPENDENCIES: automake libtool gmake gcc wget openssl
+                  python3 py37-openssl py37-sphinx
+    matrix:
+      COMPILER: gcc
+      COMPILER: clang
+
+  prepare_script:
+    - sysctl -w kern.coredump=0
+    - pkg install -y ${DEPENDENCIES}
+
+  configure_script:
+    - ./boot.sh
+    - ./configure CC=${COMPILER} CFLAGS="-g -O2 -Wall"
+                  MAKE=gmake --enable-Werror
+                  || { cat config.log; exit 1; }
+
+  build_script:
+    - gmake -j8
+
+  check_script:
+    - gmake -j8 check TESTSUITEFLAGS=-j8 RECHECK=yes
+                || { cat ./tests/testsuite.log; exit 1; }

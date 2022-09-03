@@ -1,0 +1,10 @@
+table_set_default set_port _drop
+table_set_default read_flags _drop
+table_set_default read_ts_flag _drop
+table_add set_port _set_port 67108864&&&0b00000100000000000000000000000000 03 => 02 1
+table_add set_port _set_port 0&&&0b00000100000000000000000000000000 03 => 01 2
+table_add set_port _set_port 0&&&0 02 => 03 3
+table_add set_port _set_port 0&&&0 01 => 03 4
+table_add read_flags _read_flags 0 10.0.0.1 => 0
+table_add read_flags _read_flags 1 10.0.0.1 => 1
+table_add read_ts_flag _detect_ts_flag_on 1 => 00

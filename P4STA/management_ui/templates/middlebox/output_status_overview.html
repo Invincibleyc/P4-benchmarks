@@ -1,0 +1,198 @@
+<!--
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. -->
+
+
+<head>
+<style>
+.dot_red {
+  height: 15px;
+  width: 15px;
+  background-color: #F00;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot_green {
+  height: 15px;
+  width: 15px;
+  background-color: #008000;
+  border-radius: 50%;
+  display: inline-block;
+}
+</style>
+<script>
+	function delete_namespace(ns, user, ssh_ip){
+		var token = document.getElementsByName("csrfmiddlewaretoken");
+		csrf_value = token[0].getAttribute("value");
+		$.ajax({
+            type: "POST",
+            url: "/job_delete_namespace/",
+            data: {
+            	'csrfmiddlewaretoken': csrf_value,
+            	'namespace': ns,
+				'user': user,
+				'ssh_ip': ssh_ip
+            },
+            error: function(){
+				document.getElementById(ns+"_"+ssh_ip+"_error").innerHTML = "error deleting";
+            },
+            success: function (response) {
+				if(!response.error){
+					items = document.getElementsByClassName(ns+"_"+ssh_ip)
+					for (var i = 0; i < items.length; i++){
+						items[i].innerHTML = "";
+					}
+					items = document.getElementsByClassName(ns+"_"+ssh_ip+"_error")
+					for (var i = 0; i < items.length; i++){
+						items[i].innerHTML = "";
+					}
+				} else {
+					items = document.getElementsByClassName(ns+"_"+ssh_ip+"_error")
+					for (var i = 0; i < items.length; i++){
+						items[i].innerHTML = "error deleting";
+					}
+				}
+            },
+            timeout: 3000
+          });
+	}
+</script>
+</head>
+
+<div style="line-height: normal;">
+
+
+<p><b><u>Stamper Device</u></b></p>
+<p>
+	{% if stamper_ssh_ping %}
+		<span class="dot_green" data-toggle="tooltip" data-placement="top" title="SSH IP is reacheably by ping."></span>
+	{% else %}
+		<span class="dot_red" data-toggle="tooltip" data-placement="top" title="SSH IP is not reacheably by ping."></span>
+	{% endif %} 
+	<b>SSH:</b> {{stamper_ssh}}
+</p>
+<p>
+{% if stamper_compile_status_color %}<span class="dot_green"></span>{% else %}<span class="dot_red"></span>{% endif %}
+{{p4_compile_status}}
+</p>
+{% if stamper_ssh_ping %}
+
+{% for check in custom_checks %}
+<p><span class={% if check.0 == False %}"dot_red"{% else %}"dot_green"{% endif %}></span> <b>{{check.1}}: </b> {{check.2}}</p>
+{% endfor %}
+
+<details>
+  <summary><span class={% if stamper_needed_sudos_to_add|length > 0 %}"dot_red"{% else %}"dot_green"{% endif %}></span> SUDO RIGHTS {{stamper_user}}:</summary>
+  	{% for line in stamper_sudo_rights %}
+		&emsp;{{line}}<br>
+	{% endfor %}
+	{% for line in stamper_needed_sudos_to_add %}
+		<br><p><i class="fas fa-exclamation"></i>
+		You shoud add to visudo: $USER (ALL : ALL) NOPASSWD:{{line}} *directory may be different*</p>
+	{% endfor %}
+</details>
+
+
+
+{% endif %}
+<hr/>
+
+{% for loadgen_grp in loadgen_groups %}
+{% if loadgen_grp.use_group == "checked" %}
+	<p><b><u>Loadgen Group {{loadgen_grp.group}}</u></b></p>
+	{% for host in loadgen_grp.loadgens %}
+		{% if forloop.first == False %}--------------------------------------------------------------------------------------{% endif %}
+		<p><b>
+			{% if host.ssh_ping %}
+				<span class="dot_green" data-toggle="tooltip" data-placement="top" title="SSH IP is reacheably by ping."></span>
+			{% else %}
+				<span class="dot_red" data-toggle="tooltip" data-placement="top" title="SSH IP is not reacheably by ping."></span>
+			{% endif %} 
+			SSH:</b> {{host.ssh_ip}} <b> | LOAD PORT </b>{{host.real_port}}<b> IFACE </b>{{host.loadgen_iface}}<b>: IP</b> <span style="color: {% if host.fetched_ipv4 ==  host.loadgen_ip %}green{% else %}red{% endif %}">{{host.fetched_ipv4}}{{host.fetched_prefix}}</span> <b>MAC</b> <span style="color: {% if host.fetched_mac ==  host.loadgen_mac %}green{% else %}red{% endif %}">{{host.fetched_mac}}</span> <b>{% if host.up_state == "up" %}<span style="color: green">UP</span>{% else %}<span style="color: red">DOWN</span>{% endif %}</b>
+			</b></p>
+	{% if host.ssh_ping %}
+
+	{% for check in host.custom_checks %}
+	<p><span class={% if check.0 == False %}"dot_red"{% else %}"dot_green"{% endif %}></span> <b>{{check.1}}: </b> {{check.2}}</p>
+	{% endfor %}
+
+	<details>
+	<summary><span class={% if host.needed_sudos_to_add|length > 0 %}"dot_red"{% else %}"dot_green"{% endif %}></span> SUDO RIGHTS {{host.ssh_user}}:</summary>
+		{% for line in host.sudo_rights %}
+			&emsp;{{line}}<br>
+		{% endfor %}
+		{% for line in host.needed_sudos_to_add %}
+			<br><p><i class="fas fa-exclamation"></i>
+			You shoud add to visudo: $USER (ALL : ALL) NOPASSWD:{{line}} *directory may be different*</p>
+		{% endfor %}
+
+	</details>
+
+	<details>
+	<summary>IP ROUTES:</summary>
+		{% for line in host.ip_routes %}
+			&emsp;{{line}}<br>
+		{% endfor %}
+
+	</details>
+
+	<details>
+		<summary>ACTIVE NAMESPACES WITH INTERFACES:</summary>
+		{% for line in host.namespaces %}
+			<div class="{{line.0}}_{{host.ssh_ip}}">
+			{% for l in line %}
+			&emsp;{% if forloop.first %}<b>{%endif%}{{l}}{% if forloop.first %}</b><button type="button" class="btn btn-outline-dark btn-sm" onclick="delete_namespace('{{l}}', '{{host.ssh_user}}', '{{host.ssh_ip}}')" style="float: right; margin-right: 20px;">Delete</button><div class="{{line.0}}_{{host.ssh_ip}}_error" style="color: red; float: right; padding-right: 5px;"></div>{%endif%}<br>
+			{% endfor %}
+			</div>
+		{% endfor %}
+	</details>
+
+
+	{% endif %}	
+	{% endfor %}
+
+	<hr/>
+
+{% endif %}
+{% endfor %}
+
+<p><b><u>External Host</u></b></p>
+	<p><b>
+		{% if ext_host_ssh_ping %}
+			<span class="dot_green" data-toggle="tooltip" data-placement="top" title="SSH IP is reacheably by ping."></span>
+		{% else %}
+			<span class="dot_red" data-toggle="tooltip" data-placement="top" title="SSH IP is not reacheably by ping."></span>
+		{% endif %} 
+		SSH: </b>{{host.ssh_ip}} <b> | LISTEN PORT </b>{{ext_host_real}}<b> IFACE </b>{{ext_host_if}}<b>: IP </b>{{ext_host_fetched_ipv4}}{{ext_host_fetched_prefix}} <b>MAC:</b> {{ext_host_fetched_mac}} <b>{% if ext_host_up_state == "up" %}<span style="color: green">UP</span>{% else %}<span style="color: red">DOWN</span>{% endif %}</b>
+	</b></p>
+{% if ext_host_ssh_ping %}
+
+{% for check in custom_checks %}
+<p><span class={% if check.0 == False %}"dot_red"{% else %}"dot_green"{% endif %}></span> <b>{{check.1}}: </b> {{check.2}}</p>
+{% endfor %}
+
+<details>
+  <summary><span class={% if ext_host_needed_sudos_to_add|length > 0 %}"dot_red"{% else %}"dot_green"{% endif %}></span> SUDO RIGHTS {{ext_host_user}}:</summary>
+  	{% for line in ext_host_sudo_rights %}
+		&emsp;{{line}}<br>
+	{% endfor %} 
+	{% for line in ext_host_needed_sudos_to_add %}
+		<br><p><i class="fas fa-exclamation"></i>
+		You shoud add to visudo: $USER (ALL : ALL) NOPASSWD:{{line}}</p>
+	{% endfor %}
+</details>
+
+{% endif %}
+</div>
+

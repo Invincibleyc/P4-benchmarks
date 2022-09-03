@@ -1,0 +1,14 @@
+#define YES 1
+#define NO 0
+#define MAX_32bit 0xFFFFFFFF
+#define not_inoder 2
+#define Disabled 0
+#define Enabled 1
+#define update_flag 1
+#define DOWN 1
+#define UP 1
+#define DelayTime 3000
+#define ConfigTime 760000
+#define BackupPort 162
+#define decision_sqr_apply 1
+#define queue_threshold 1000

@@ -1,0 +1,27 @@
+[+ std_header +]
+[+ this_header +]
+
+action a_removeh(sz, msk, vbits) {
+  modify_field(extracted.data, (extracted.data & ~msk) | ( (extracted.data << (sz * 8)) & msk ));
+  modify_field(parse_ctrl.numbytes, parse_ctrl.numbytes - sz);
+  modify_field(extracted.validbits, extracted.validbits & vbits);
+}
+
+[+ dloop +]
+table t_removeh_[+X+][+Y+] {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_primitive_state.action_ID : exact;
+    meta_primitive_state.match_ID : ternary;
+  }
+  actions {
+    a_removeh;
+  }
+}
+[+ enddloop +]
+
+[+ dloop +]
+control do_remove_header_[+X+][+Y+] {
+  apply(t_removeh_[+X+][+Y+]);
+}
+[+ enddloop +]

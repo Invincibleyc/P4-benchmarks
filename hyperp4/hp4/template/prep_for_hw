@@ -1,0 +1,79 @@
+HP4 for HW Project
+
+Agilio specs:
+ Netronome NFP 6xxx - NFP SDK version 6.0 - Development Tools User's Guide
+  /opt/netronome/nfp-sdk-6.0.3/doc/UG_nfp6000_devtools.pdf
+  Appendix E. P4 Design Limits
+
+Field size: 256B / 2048b
+- non-constant shifts, multiply, divide, and modulo may only take operands of 4B / 32b or less
+
+Combined Header Sizes: 820B, where each header is aligned to 4B boundary
+- includes header and metadata
+
+Number of headers in stack: 16
+- "this may be lower under certain conditions" - no further information given
+
+Width of current() limited to 32B / 256b
+
+Max number of tables: 256
+
+Max entries in a table: 64K
+
+Limits on fields for matching: 640b
+- 40 segments, each 16b; small fields < 16b still occupy a segment
+
+Max actions: 256
+
+Size of all parameters for single action <= 92B / 736b
+- effective value may be lower due to overhead for packing action data
+
+Accumulated action data width for all actions executed for a packet processed
+within the pipeline <= 224B / 1792b:
+- 4B + action parameter size for each action
+
+Max 248B headers can be removed
+
+-----
+
+Number of tables is a limiting factor; table at ../analysis/results_tables.ods
+shows which configurations are supported, e.g.:
+- 2 x 9
+- 3 x 8
+- 4 x 5
+- 5 x 4
+- 6 x 3
+- 8 x 2
+- 9 x 1
+
+Tasks:
+- [COMPLETE] Determine # actions per:
+  - stage
+  - num primitives / stage
+  Fill in a table for stages 1-9 x # prims 1-9
+- RESULT: 150; number is constant regardless of num stages / primitives supported
+  - this number will increase as we support more primitives, but we are well under
+    Agilio's limit
+
+- [IN PROGRESS] Determine all hp4 fields > 32b and whether each is involved in:
+  - shift - all offending cases are shifts
+  - multiply - none
+  - divide - none
+  - modulo - none
+  Fields:
+  - [good] csum.csmask 768b
+    - used: checksums.p4::a_ipv4_csum16
+  - [bad] tmeta.data 256b
+    - bad uses:
+      - modify_field.p4::mod_extracted_meta
+      - modify_field.p4::mod_stdmeta_egressspec_meta
+  - [bad] extracted.data 800b
+    - bad use:
+      - modify_field.p4::mod_extracted_extracted
+      - modify_field.p4::mod_meta_extracted
+      - add_header.p4::a_addh
+      - checksums.p4::a_ipv4_csum16
+  - [good] extracted.validbits 80b
+- RESULT: 3/5 large hp4 fields are involved in shift operations Agilio can't handle
+  - dozens of operations to fix
+  - do not know at this point what the fix options are... need to re-read the doc - maybe not all are bad.  DevTools: "Non-constant shifts, multiply, divide and modulo operations may only take operands of 32-bits or less."

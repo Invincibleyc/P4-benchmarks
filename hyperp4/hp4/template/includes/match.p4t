@@ -1,0 +1,157 @@
+[+ std_header +]
+[+ this_header +]
+
+action init_program_state(action_ID, match_ID, next_stage, next_table
+                          [+ sloop primitives ss +]
+                          , primitive[+X+], primitive_subtype[+X+]
+                          [+ endsloop +]
+                         ) {
+  modify_field(meta_primitive_state.action_ID, action_ID);
+  modify_field(meta_primitive_state.match_ID, match_ID);
+  modify_field(meta_ctrl.next_stage, next_stage);
+  //modify_field(meta_primitive_state.primitive_index, 1);
+  modify_field(meta_ctrl.next_table, next_table);
+  [+ sloop primitives ss +]
+  modify_field(meta_primitive_state.primitive[+X+], primitive[+X+]);
+  modify_field(meta_primitive_state.subtype[+X+], primitive_subtype[+X+]);
+  [+ endsloop +]
+}
+
+[+ sloop +]
+table t[+X+]_matchless {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_extracted_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    extracted.data : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_metadata_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    tmeta.data : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_metadata_ternary {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    tmeta.data : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_extracted_ternary {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    extracted.data : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_extracted_valid {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    extracted.validbits : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+// TODO: change match type for stdmetadata field to ternary, all tables
+// Reason: supports table_set_default by allowing 0&&&0 while we still do exact
+// matching on the program ID
+table t[+X+]_stdmeta_ingress_port_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_ctrl.virt_ingress_port : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_stdmeta_packet_length_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    standard_metadata.packet_length : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_stdmeta_instance_type_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    standard_metadata.instance_type : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+
+table t[+X+]_stdmeta_egress_spec_exact {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_ctrl.virt_egress_spec : ternary;
+  }
+  actions {
+    init_program_state;
+  }
+}
+[+ endsloop +]
+
+[+ sloop +]
+control match_[+X+] {
+  if(meta_ctrl.next_table == EXTRACTED_EXACT) { // 17|118|...
+    apply(t[+X+]_extracted_exact);
+  }
+  else if(meta_ctrl.next_table == METADATA_EXACT) { // 18|119|...
+    apply(t[+X+]_metadata_exact);
+  }
+  else if(meta_ctrl.next_table == EXTRACTED_VALID) { // 19|120|...
+    apply(t[+X+]_extracted_valid);
+  }
+  else if(meta_ctrl.next_table == MATCHLESS) {
+    apply(t[+X+]_matchless);
+  }
+  else if(meta_ctrl.next_table == STDMETA_INGRESS_PORT_EXACT) {
+    apply(t[+X+]_stdmeta_ingress_port_exact);
+  }
+  else if(meta_ctrl.next_table == STDMETA_PACKET_LENGTH_EXACT) { // 22|...
+    apply(t[+X+]_stdmeta_packet_length_exact);
+  }
+  else if(meta_ctrl.next_table == STDMETA_INSTANCE_TYPE_EXACT) { // 23|...
+    apply(t[+X+]_stdmeta_instance_type_exact);
+  }
+  else if(meta_ctrl.next_table == STDMETA_EGRESS_SPEC_EXACT) { // 24|...
+    apply(t[+X+]_stdmeta_egress_spec_exact);
+  }
+  else if(meta_ctrl.next_table == METADATA_TERNARY) { // 25|...
+    apply(t[+X+]_metadata_ternary);
+  }
+  else if(meta_ctrl.next_table == EXTRACTED_TERNARY) { // 26|...
+    apply(t[+X+]_extracted_ternary);
+  }
+}
+[+ endsloop +]

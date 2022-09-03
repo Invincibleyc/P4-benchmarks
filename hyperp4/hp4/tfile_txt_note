@@ -1,0 +1,6 @@
+Some script may fail missing one or more of the following files:
+- tfile.txt - 1G
+- tfile2.txt - 100M
+- tfile3.txt - 1M
+
+As necessary, recreate these files in this directory via random generation.

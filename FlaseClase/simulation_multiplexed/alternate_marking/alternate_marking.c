@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include "alternate_marking.h"
+
+#define ITERATIONS 60
+#define WAIT_FOR 4
+
+/* Notes:
+ * Looking on the n bit of the integer representing time.
+ * The time between coloer switch is 2^n.
+ * The delta between counter checks should be 2^(n-3)
+ */
+
+typedef enum state {INIT, UP, DOWN} color;
+
+int main(){
+	int iter = 0, i, rc;
+	pid_t pid;
+	unsigned int counters[4] = {0,0,0,0};
+	int init_zero = 0, init_one = 0;
+
+	printf("Alternate Marking...\n");
+	system("./../reset_counters.sh");
+	printf("Counters reset done.\n");
+
+	while(iter < ITERATIONS){
+		rc = get_counters("./../read_counters_line.sh", counters);
+		if(rc == -1){P_ERR("get_counters function failed.")}
+		
+		PRINT_COUNTERS	
+		RESET_COUNTERS
+		sleep(1);
+		iter++;
+	}
+
+}
+
+
+int get_counters(char* cmd, unsigned int counters[]) {
+    //char *cmd = "./../read_counters_line.sh";
+
+    char buf[BUFSIZE];
+    FILE *fp;
+    int i;
+
+    if ((fp = popen(cmd, "r")) == NULL) {
+        printf("Error opening pipe!\n");
+        return -1;
+    }
+    fgets(buf, BUFSIZE, fp);
+
+    extract_number(buf, counters);
+
+    if(pclose(fp))  {
+        printf("Command not found or exited with error status\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+void extract_number(char *str, unsigned int *array){
+    int i, j = 0;
+    for(i = 0; i < 4; ++i){
+	while(str[j] != '\0'){
+	    if(str[j] != ','){
+	        array[i] = array[i]*10 + str[j] - 48;
+		j++;
+	    }else{
+		j++;
+		break;
+	    }
+	}
+    }
+}
+
+/*
+    bool loop = true;
+    int i;
+    color s = INIT;
+    unsigned int counters[4] = {0,0,0,0};
+    unsigned int sent = 0, recv = 0;
+    printf("Alternate Marking\n");
+    while(loop){
+	
+	if(get_counters(counters) != 0)
+	    PRINT_ERR("Function get_counters failed.")
+	switch(s){
+	    case INIT :
+		if(counters[0] == 0 && counters[1] == 0 && counters[2] == 0 && counters[3] == 0)
+		    break;
+		if(counters[0] + counters[1] > 0)
+		    s = UP;
+		else if(counters[2] + counters[3] > 0)
+		    s = DOWN;
+	    case UP :
+		if(counters[2] == 0 && counters[3] == 0){
+		    sent += counters[0];
+		    recv += counters[1];
+		} else {
+		    printf("sent: %u, received: %u\n", sent, recv);
+		    sent = counters[2];
+		    recv = counters[3];
+		    s = DOWN;
+		}
+	    case DOWN :
+		if(counters[0] == 0 && counters[1] == 0){
+		    sent += counters[2];
+		    recv += counters[3];
+		} else {
+		    printf("sent: %u, received: %u\n", sent, recv);
+		    sent = counters[0];
+		    recv = counters[1];
+		    s = UP;
+		}
+	} 
+	PRINT_COUNTERS
+	RESET_COUNTERS
+	sleep(1);
+    }
+
+*/

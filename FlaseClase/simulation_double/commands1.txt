@@ -1,0 +1,10 @@
+table_set_default set_port _drop
+table_set_default modify_flags _drop
+table_add assign_ts_bit _modify_ts_flag 0 1 => 1
+table_add assign_ts_bit _modify_ts_flag 1 0 => 1
+table_add modify_flags _modify_flags 34359738368&&&0b0000000000000000000000000000100000000000000000000000000000000000 10.0.0.2 => 0 1 
+table_add modify_flags _modify_flags 0&&&0b0000000000000000000000000000100000000000000000000000000000000000 10.0.0.2 => 1 2
+table_add set_port _set_port 34359738368&&&0b0000000000000000000000000000100000000000000000000000000000000000 01 => 02 1 
+table_add set_port _set_port 0&&&0b0000000000000000000000000000100000000000000000000000000000000000 01 => 02 2
+table_add set_port _set_port 0&&&0 02 => 01 3
+table_add set_port _set_port 0&&&0 03 => 01 4

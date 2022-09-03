@@ -1,0 +1,28 @@
+<!--
+# Copyright 2019-present Ralf Kundel, Fridolin Siegmund
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. -->
+
+{% for loadgen_grp in cfg.loadgen_groups %}
+{% if loadgen_grp.use_group == "checked" %}
+{% for host in loadgen_grp.loadgens %}
+
+{% if host.reachable == True %}
+<p> Host {{loadgen_grp.group}}.{{ host.id }} (<b>{{host.ssh_ip}}</b>) is currently <b><span style="color:green">reachable</span></b> and <b>{{host.loadgen_iface}} ({{host.loadgen_ip}})</b> {% if "namespace_id" in host %} at namespace <b>{{host.namespace_id}}</b>{%endif%} is: <b>{{host.link}}</b></p>
+{% else %}
+<p> Host {{loadgen_grp.group}}.{{ host.id  }} (<b>{{host.ssh_ip}}</b>) is currently <b><span style="color:red">not reachable</span></b></p>
+{% endif %}
+
+{% endfor %}
+{% endif %}
+{% endfor %}

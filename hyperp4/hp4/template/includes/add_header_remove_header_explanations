@@ -1,0 +1,71 @@
+# Add Header
+
+Original statement:
+
+  (extracted.data & ~msk) | ( (extracted.data >> (sz * 8)) & (msk >> (offset * 8)) )
+
+The mask is a 1 for bits corresponding to the new header as well as for all
+bits to the right of the new header; 0 for all bits to the left of the new header.
+
+Ex.:
+
+start:
+A		|		B		| 	Empty
+0-3			4-7			8+
+
+want:
+A		|		C		|		B			| Empty
+0-3			4-7			8-11		12+
+
+mask: 00000000 FFFFFFFF FFFFFFFF FF+
+~msk: FFFFFFFF 00000000 00000000 00+
+offset: 4
+sz: 4
+
+extracted.data & ~msk:
+A		|		00s		|		00s		|		00s
+
+extracted.data >> (sz*8):
+00s	|		A			|		B			|		Empty
+
+msk >> (offset * 8):
+00000000 00000000 FFFFFFFF FF+
+
+(extracted.data >> (sz*8)) & (msk >> (offset * 8)):
+00s	|		00s		|		B			|		Empty
+
+(extracted.data & ~msk) | (extracted.data >> (sz*8)) & (msk >> (offset * 8)):
+A		|		00s		|		B			|		Empty
+
+This works!
+
+# Remove Header
+
+  (extracted.data & ~msk) | ( (extracted.data << (sz * 8)) & msk )
+
+The mask is 0s for all bits to the left of the header to be removed, and 1s for
+all bits thereafter.
+
+start:
+A		|		C		|		B		| 	Empty
+0-3			4-7			8-11		12+
+
+want:
+A		|		B		|		Empty
+0-3			4-7			8+
+
+mask: 00000000 FFFFFFFF FFFFFFFF FF+
+~msk: FFFFFFFF 00000000 00000000 00+
+sz: 4
+
+extracted.data & ~msk:
+A		|		00s	|		00s	|		00s
+
+extracted.data << (sz * 8):
+C		|		B		|		Empty
+
+extracted.data << (sz * 8) & msk:
+00s	|		B		|		Empty
+
+(extracted.data & ~msk) | ( (extracted.data << (sz * 8)) & msk ):
+A		|		B		|		Empty

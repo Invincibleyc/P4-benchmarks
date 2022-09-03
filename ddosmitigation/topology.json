@@ -1,0 +1,22 @@
+{
+    "hosts": [
+	"h1",
+	"h2",
+	"h4",
+	"h99"
+    ],
+    "switches": {
+	"s11": { "runtime_json" : "./sw_rules/s11-runtime.json","cli_input" : "./sw_rules/s11-cli.input" },
+	"s21": { "runtime_json" : "./sw_rules/s21-runtime.json","cli_input" : "./sw_rules/s21-cli.input" },
+	"s31": { "runtime_json" : "./sw_rules/s31-runtime.json","cli_input" : "./sw_rules/s31-cli.input" },
+	"s41": { "runtime_json" : "./sw_rules/s41-runtime.json","cli_input" : "./sw_rules/s41-cli.input" },
+	"s51": { "runtime_json" : "./sw_rules/s51-runtime.json","cli_input" : "./sw_rules/s51-cli.input" }
+    },
+    "links": [
+	["h1", "s11"],["s11", "s31"],
+	["h2", "s21"],["s21", "s31"],
+	["s31", "s51"],
+	["h4", "s41"],["s41", "s51"],
+	["h99", "s51"]
+    ]
+}

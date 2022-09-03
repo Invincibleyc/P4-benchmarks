@@ -1,0 +1,13 @@
+Task: verify select(current(0, 48)) properly supported by hp4
+- simultaneously verify valid matching properly supported by hp4
+
+Subtasks:
+- P4 program
+  - use two different ethernet headers; which one is parsed depends on
+    result of select(current(0, 48))
+  - ingress: perform valid match on eth1
+    - valid: forward packet to h1
+    - invalid: perform valid match on eth2
+      - valid: forward packet to h2
+      - invalid: forward packet to h3
+- write scapy sender / receiver test case (avoids ARP)

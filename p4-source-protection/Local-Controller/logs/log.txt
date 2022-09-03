@@ -1,0 +1,149 @@
+
+[2020-03-04 16:09:01.710] /p4.v1.P4Runtime/SetForwardingPipelineConfig
+---
+Message too long (38982 bytes)! Skipping log...
+---
+
+[2020-03-04 16:09:01.741] /p4.v1.P4Runtime/Write
+---
+election_id {
+  low: 1
+}
+updates {
+  type: INSERT
+  entity {
+    table_entry {
+      table_id: 33587399
+      match {
+        field_id: 1
+        exact {
+          value: "\000\000\000\000\001\001"
+        }
+      }
+      action {
+        action {
+          action_id: 16785560
+          params {
+            param_id: 1
+            value: "\000\001"
+          }
+        }
+      }
+    }
+  }
+}
+---
+
+[2020-03-04 16:09:01.754] /p4.v1.P4Runtime/Write
+---
+election_id {
+  low: 1
+}
+updates {
+  type: INSERT
+  entity {
+    table_entry {
+      table_id: 33587399
+      match {
+        field_id: 1
+        exact {
+          value: "\000\000\000\000\001\002"
+        }
+      }
+      action {
+        action {
+          action_id: 16785560
+          params {
+            param_id: 1
+            value: "\000\002"
+          }
+        }
+      }
+    }
+  }
+}
+---
+
+[2020-03-04 16:09:01.775] /p4.v1.P4Runtime/Write
+---
+election_id {
+  low: 1
+}
+updates {
+  type: INSERT
+  entity {
+    table_entry {
+      table_id: 33587399
+      match {
+        field_id: 1
+        exact {
+          value: "\000\000\000\000\001\003"
+        }
+      }
+      action {
+        action {
+          action_id: 16785560
+          params {
+            param_id: 1
+            value: "\000\003"
+          }
+        }
+      }
+    }
+  }
+}
+---
+
+[2020-03-04 16:09:01.902] /p4.v1.P4Runtime/Write
+---
+election_id {
+  low: 1
+}
+updates {
+  type: INSERT
+  entity {
+    table_entry {
+      table_id: 33597640
+      action {
+        action {
+          action_id: 16839679
+          params {
+            param_id: 1
+            value: "\000\000\000LK@"
+          }
+        }
+      }
+      priority: 1
+    }
+  }
+}
+---
+
+[2020-03-04 16:09:01.917] /p4.v1.P4Runtime/Write
+---
+election_id {
+  low: 1
+}
+updates {
+  type: INSERT
+  entity {
+    table_entry {
+      table_id: 33567670
+      action {
+        action {
+          action_id: 16803397
+          params {
+            param_id: 1
+            value: "\000\001"
+          }
+          params {
+            param_id: 2
+            value: "\000\002"
+          }
+        }
+      }
+      priority: 1
+    }
+  }
+}
+---

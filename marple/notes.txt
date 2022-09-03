@@ -1,0 +1,45 @@
+TODOS
+
+* passes to fix other cases: uid groupby, tout==inf, packet cloning, should not
+  need to use switchId inside the p4 code
+
+domino related
+* can we reduce outcast.sql compiler output size? 15 stages may be high...
+
+additional compiler passes
+* pass: detect vector-valued state with linear updates
+* pass: handling groupby code generation correctly with `uid` in aggregation
+* pass: combine with located expr tree to only install on specific switches
+* pass: rules needed to generate outputs for query. By default, assume each
+  stage is some intermediate stage; generate output code only for toplevel.
+* pass: include evicted key-value outputs on the cloned packet
+* handle tout==infinity in filter code generation
+
+issues to think about
+* guarantees of fixed point algorithms for linear-in-state + bounded packet hist
+  - casting as lattice theory/abstract interpretation
+* semantics for multi-stage groupby queries
+* emit() versus functional design
+
+hardware-oriented passes
+* making kv store an extern + configure extern
+* configure domino atoms from aggregation functions
+* configure the tofino chip(?)
+
+simplifying code
+* simplify ternary threeopstmts. e.g., z = true ? x : y ==> z = x
+* remove define-before-use checking class and redundant code
+* change code generated for map to 'functional' semantics?
+* make predicates "smart", e.g., AugPred(true).and(X) == X
+* current map code is dead code if operand is invalid
+* cleanup code: add @Override annotation to new antlr visitor passes!
+* simple way to check whether a switch is an egress switch?
+* language identifiers for constants, like TCP protocol number
+
+possible error handling for aggregate functions
+* warn if no code path changes the state variables
+* print code line numbers in errors. e.g., see define before use error msgs
+* better formatting for error messages
+
+template
+* setting default acc value for aggregation function in language & template?

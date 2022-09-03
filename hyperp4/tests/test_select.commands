@@ -1,0 +1,4 @@
+table_add check_eth1 fwd_p1 1 =>
+table_add check_eth1 inv_eth1 0 =>
+table_add check_eth2 fwd_p2 1 =>
+table_add check_eth2 fwd_p3 0 =>

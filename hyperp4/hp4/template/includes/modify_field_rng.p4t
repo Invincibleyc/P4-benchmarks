@@ -1,0 +1,28 @@
+[+ std_header +]
+[+ this_header +]
+
+action mod_extracted_rng(leftshift, emask, lowerbound, upperbound) {
+  modify_field_rng_uniform(temp.data, lowerbound, upperbound);
+  modify_field(extracted.data, (extracted.data & ~emask) | ((temp.data << leftshift) & emask));
+}
+
+[+ dloop +]
+table t_mod_rng_[+X+][+Y+] {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_primitive_state.action_ID : exact;
+    meta_primitive_state.match_ID : ternary;
+  }
+  actions {
+    mod_extracted_rng;
+    _no_op;
+  }
+}
+[+ enddloop +]
+
+[+ dloop +]
+control do_modify_field_rng_[+X+][+Y+] {
+  apply(t_mod_rng_[+X+][+Y+]);
+}
+
+[+ enddloop +]

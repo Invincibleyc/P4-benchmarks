@@ -1,0 +1,28 @@
+[+ std_header +]
+[+ this_header +]
+
+action a_multicast(grp_id, highport) {
+  modify_field(meta_ctrl.mcast_grp_id, grp_id);
+  modify_field(meta_ctrl.mcast_current_egress, highport);
+  modify_field(meta_ctrl.mc_flag, 1);
+  modify_field(standard_metadata.egress_spec, highport);
+}
+
+[+ dloop +]
+table t_multicast_[+X+][+Y+] {
+  reads {
+    meta_ctrl.vdev_ID : exact;
+    meta_primitive_state.action_ID : exact;
+    meta_primitive_state.match_ID : ternary;
+  }
+  actions {
+    a_multicast;
+  }
+}
+[+ enddloop +]
+
+[+ dloop +]
+control do_multicast_[+X+][+Y+] {
+  apply(t_multicast_[+X+][+Y+]);
+}
+[+ enddloop +]
